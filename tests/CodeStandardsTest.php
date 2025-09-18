@@ -114,7 +114,7 @@ class CodeStandardsTest extends TestCase
         $jsonOutput = implode('', $output);
         $result = json_decode($jsonOutput, true);
 
-        if (json_last_error() === JSON_ERROR_NONE && isset($result['totals'])) {
+        if (json_last_error() === JSON_ERROR_NONE && is_array($result) && isset($result['totals'])) {
             $this->assertEquals(0, $result['totals']['errors'], 'Source files should have no PSR-12 errors');
             $this->assertEquals(0, $result['totals']['warnings'], 'Source files should have no PSR-12 warnings');
         } else {
@@ -158,7 +158,7 @@ class CodeStandardsTest extends TestCase
         $jsonOutput = implode('', $output);
         $result = json_decode($jsonOutput, true);
 
-        if (json_last_error() === JSON_ERROR_NONE && isset($result['totals'])) {
+        if (json_last_error() === JSON_ERROR_NONE && is_array($result) && isset($result['totals'])) {
             $this->assertEquals(0, $result['totals']['errors'], 'Test files should have no PSR-12 errors');
             $this->assertEquals(0, $result['totals']['warnings'], 'Test files should have no PSR-12 warnings');
         } else {

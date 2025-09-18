@@ -46,28 +46,27 @@ setup_branch_protection() {
         -H "Accept: application/vnd.github+json" \
         -H "X-GitHub-Api-Version: 2022-11-28" \
         "/repos/${REPO}/branches/${BRANCH}/protection" \
-        -f required_status_checks[strict]=true \
-        -f required_status_checks[contexts][]='test (8.1, prefer-lowest)' \
-        -f required_status_checks[contexts][]='test (8.1, prefer-stable)' \
-        -f required_status_checks[contexts][]='test (8.2, prefer-lowest)' \
-        -f required_status_checks[contexts][]='test (8.2, prefer-stable)' \
-        -f required_status_checks[contexts][]='test (8.3, prefer-lowest)' \
-        -f required_status_checks[contexts][]='test (8.3, prefer-stable)' \
-        -f required_status_checks[contexts][]='coverage' \
-        -f required_status_checks[contexts][]='documentation' \
-        -f enforce_admins=true \
-        -f required_pull_request_reviews[dismiss_stale_reviews]=true \
-        -f required_pull_request_reviews[require_code_owner_reviews]=false \
-        -f required_pull_request_reviews[required_approving_review_count]=1 \
-        -f required_pull_request_reviews[require_last_push_approval]=false \
-        -f required_conversation_resolution=true \
-        -f lock_branch=false \
-        -f allow_fork_syncing=true \
-        -f required_linear_history=false \
-        -f allow_force_pushes=false \
-        -f allow_deletions=false \
-        -f block_creations=false \
-        -f restrictions=null
+        -F required_status_checks[strict]=true \
+        -f required_status_checks[contexts][]='PHP 8.1 - prefer-lowest' \
+        -f required_status_checks[contexts][]='PHP 8.1 - prefer-stable' \
+        -f required_status_checks[contexts][]='PHP 8.2 - prefer-lowest' \
+        -f required_status_checks[contexts][]='PHP 8.2 - prefer-stable' \
+        -f required_status_checks[contexts][]='PHP 8.3 - prefer-lowest' \
+        -f required_status_checks[contexts][]='PHP 8.3 - prefer-stable' \
+        -f required_status_checks[contexts][]='Code Coverage' \
+        -F enforce_admins=true \
+        -F required_pull_request_reviews[dismiss_stale_reviews]=true \
+        -F required_pull_request_reviews[require_code_owner_reviews]=false \
+        -F required_pull_request_reviews[required_approving_review_count]=1 \
+        -F required_pull_request_reviews[require_last_push_approval]=false \
+        -F required_conversation_resolution=true \
+        -F lock_branch=false \
+        -F allow_fork_syncing=true \
+        -F required_linear_history=false \
+        -F allow_force_pushes=false \
+        -F allow_deletions=false \
+        -F block_creations=false \
+        --field restrictions=null
 
     if [ $? -eq 0 ]; then
         echo -e "${GREEN}✓ Branch protection configured for: ${BRANCH}${NC}"
