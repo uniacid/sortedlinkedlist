@@ -12,13 +12,6 @@ use SortedLinkedList\Comparator\StringComparator;
 
 class ImmutableSortedLinkedListTest extends TestCase
 {
-    private IntegerImmutableSortedLinkedList $list;
-
-    protected function setUp(): void
-    {
-        $this->list = new IntegerImmutableSortedLinkedList();
-    }
-
     /**
      * Test 4.1: ImmutableSortedLinkedList constructor
      */

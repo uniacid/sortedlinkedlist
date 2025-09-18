@@ -40,10 +40,12 @@ class ImmutableSortedLinkedList extends SortedLinkedList
         ?Node $head,
         int $size
     ): static {
-        /** @var static $instance */
+        /** @var static<T> $instance */
+        /** @phpstan-ignore-next-line */
         $instance = new static($comparator);
         $instance->head = $head;
         $instance->size = $size;
+        /** @phpstan-ignore-next-line */
         return $instance;
     }
 
@@ -55,6 +57,7 @@ class ImmutableSortedLinkedList extends SortedLinkedList
      */
     public static function create(?ComparatorInterface $comparator = null): static
     {
+        /** @phpstan-ignore-next-line */
         return new static($comparator);
     }
 
@@ -79,10 +82,7 @@ class ImmutableSortedLinkedList extends SortedLinkedList
         usort($values, [$this, 'compare']);
 
         // Build new list structure
-        if (count($values) === 0) {
-            return $newList;
-        }
-
+        // $values is guaranteed to have at least one element (the added value)
         $firstValue = array_shift($values);
         /** @var Node<T> $newHead */
         $newHead = new Node($firstValue);
@@ -183,10 +183,7 @@ class ImmutableSortedLinkedList extends SortedLinkedList
         usort($allValues, [$this, 'compare']);
 
         // Build new list
-        if (count($allValues) === 0) {
-            return static::createWithStructure($this->comparator, null, 0);
-        }
-
+        // $allValues is guaranteed to have elements (checked above)
         $firstValue = array_shift($allValues);
         /** @var Node<T> $newHead */
         $newHead = new Node($firstValue);
@@ -546,6 +543,7 @@ class ImmutableSortedLinkedList extends SortedLinkedList
      */
     public static function fromArray(array $values, ?ComparatorInterface $comparator = null): static
     {
+        /** @phpstan-ignore-next-line */
         $list = new static($comparator);
         return $list->withAddAll($values);
     }

@@ -369,7 +369,7 @@ class AdvancedFeaturesIntegrationTest extends TestCase
         $this->assertGreaterThan(0, $sum);
 
         // Complex reduction
-        $product = $version1->reduce(function ($carry, $value) {
+        $product = $version1->reduce(function (int $carry, int $value): int {
             if ($value <= 10) {
                 return $carry * $value;
             }

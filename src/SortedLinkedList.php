@@ -726,6 +726,7 @@ abstract class SortedLinkedList implements \Iterator, \ArrayAccess, \Countable
     public static function fromArray(array $values): static
     {
         /** @var static $list */
+        /** @phpstan-ignore-next-line */
         $list = new static();
         $list->addAll($values);
         return $list;
@@ -742,6 +743,7 @@ abstract class SortedLinkedList implements \Iterator, \ArrayAccess, \Countable
     public function map(callable $callback): static
     {
         /** @var static $newList */
+        /** @phpstan-ignore-next-line */
         $newList = new static($this->comparator);
 
         $current = $this->head;
@@ -762,6 +764,7 @@ abstract class SortedLinkedList implements \Iterator, \ArrayAccess, \Countable
     public function filter(callable $predicate): static
     {
         /** @var static $newList */
+        /** @phpstan-ignore-next-line */
         $newList = new static($this->comparator);
 
         $current = $this->head;

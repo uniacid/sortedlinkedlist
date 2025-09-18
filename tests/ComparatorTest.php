@@ -263,6 +263,7 @@ class ComparatorTest extends TestCase
 
             public function __construct(ComparatorInterface $comparator)
             {
+                parent::__construct($comparator);
                 $this->customComparator = $comparator;
             }
 
