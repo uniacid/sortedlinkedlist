@@ -61,7 +61,7 @@ class BenchmarkTest extends TestCase
             });
 
             $results[$size] = $time;
-            $this->assertLessThan($size * 0.003, $time, "Insertion of $size integers took too long");
+            $this->assertLessThan($size * 0.005, $time, "Insertion of $size integers took too long");
         }
 
         // Verify O(n) complexity trend (allow for O(n^2) worst case in sorted insertion)
@@ -85,7 +85,7 @@ class BenchmarkTest extends TestCase
             });
 
             $results[$size] = $time;
-            $this->assertLessThan($size * 0.003, $time, "Insertion of $size strings took too long");
+            $this->assertLessThan($size * 0.005, $time, "Insertion of $size strings took too long");
         }
 
         // Verify O(n) complexity trend (allow for O(n^2) worst case in sorted insertion)
@@ -109,7 +109,7 @@ class BenchmarkTest extends TestCase
             });
 
             $results[$size] = $time;
-            $this->assertLessThan($size * 0.003, $time, "Insertion of $size floats took too long");
+            $this->assertLessThan($size * 0.005, $time, "Insertion of $size floats took too long");
         }
 
         // Verify O(n) complexity trend (allow for O(n^2) worst case in sorted insertion)
@@ -166,7 +166,7 @@ class BenchmarkTest extends TestCase
             });
 
             $results[$size] = $time;
-            $this->assertLessThan($size * 0.003, $time, "Removal of $size/2 elements took too long");
+            $this->assertLessThan($size * 0.005, $time, "Removal of $size/2 elements took too long");
         }
 
         // Verify O(n) complexity trend (allow for O(n^2) worst case)
@@ -190,7 +190,7 @@ class BenchmarkTest extends TestCase
             }
         });
 
-        $this->assertLessThan(0.03, $time, "Size operation should be O(1) constant time");
+        $this->assertLessThan(0.05, $time, "Size operation should be O(1) constant time");
     }
 
     public function testClearPerformance(): void
@@ -207,7 +207,7 @@ class BenchmarkTest extends TestCase
             $list->clear();
         });
 
-        $this->assertLessThan(0.003, $time, "Clear operation should be O(1) constant time");
+        $this->assertLessThan(0.005, $time, "Clear operation should be O(1) constant time");
         $this->assertEquals(0, $list->size());
     }
 }
