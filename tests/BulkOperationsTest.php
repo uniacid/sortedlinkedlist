@@ -57,7 +57,7 @@ class BulkOperationsTest extends TestCase
 
     public function testAddAllWithIterable(): void
     {
-        $generator = function() {
+        $generator = function () {
             yield 3;
             yield 1;
             yield 2;

@@ -120,7 +120,7 @@ class ComparatorTest extends TestCase
     public function testCallableComparator(): void
     {
         // Test with closure
-        $comparator = new CallableComparator(function($a, $b) {
+        $comparator = new CallableComparator(function ($a, $b) {
             return strlen($a) <=> strlen($b);
         });
 
@@ -158,7 +158,7 @@ class ComparatorTest extends TestCase
     public function testObjectComparisonWithCustomLogic(): void
     {
         // Create a custom comparator for objects
-        $personComparator = new CallableComparator(function($a, $b) {
+        $personComparator = new CallableComparator(function ($a, $b) {
             // Sort by age first, then by name
             $ageComparison = $a->age <=> $b->age;
             if ($ageComparison !== 0) {
@@ -189,7 +189,7 @@ class ComparatorTest extends TestCase
             (object)['name' => 'David', 'department' => 'Engineering', 'salary' => 100000],
         ];
 
-        $chainedComparator = new CallableComparator(function($a, $b) {
+        $chainedComparator = new CallableComparator(function ($a, $b) {
             // First compare by department
             $deptComparison = strcmp($a->department, $b->department);
             if ($deptComparison !== 0) {
@@ -246,7 +246,7 @@ class ComparatorTest extends TestCase
         $this->assertGreaterThan(0, $reverseNumeric->compare(3, 7));
 
         // Test callable factory
-        $callable = ComparatorFactory::callable(function($a, $b) {
+        $callable = ComparatorFactory::callable(function ($a, $b) {
             return $a <=> $b;
         });
         $this->assertInstanceOf(CallableComparator::class, $callable);
@@ -258,7 +258,7 @@ class ComparatorTest extends TestCase
         // Create a custom list with reverse numeric comparator
         $reverseComparator = new ReverseComparator(new NumericComparator());
 
-        $list = new class($reverseComparator) extends SortedLinkedList {
+        $list = new class ($reverseComparator) extends SortedLinkedList {
             private ComparatorInterface $customComparator;
 
             public function __construct(ComparatorInterface $comparator)
@@ -292,7 +292,7 @@ class ComparatorTest extends TestCase
     public function testComparatorWithNullHandling(): void
     {
         // Create a comparator that handles null values
-        $nullSafeComparator = new CallableComparator(function($a, $b) {
+        $nullSafeComparator = new CallableComparator(function ($a, $b) {
             if ($a === null && $b === null) {
                 return 0;
             }

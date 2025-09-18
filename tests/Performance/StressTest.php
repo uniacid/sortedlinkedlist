@@ -118,7 +118,9 @@ class StressTest extends TestCase
         $removed = 0;
         while ($list->remove(50)) {
             $removed++;
-            if ($removed > 50) break; // Safety limit
+            if ($removed > 50) {
+                break; // Safety limit
+            }
         }
 
         $this->assertEquals(50, $removed);

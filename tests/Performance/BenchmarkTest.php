@@ -54,7 +54,7 @@ class BenchmarkTest extends TestCase
             $data = $this->generateRandomIntegers($size);
             $list = new IntegerSortedLinkedList();
 
-            $time = $this->measureTime(function() use ($list, $data) {
+            $time = $this->measureTime(function () use ($list, $data) {
                 foreach ($data as $value) {
                     $list->add($value);
                 }
@@ -78,7 +78,7 @@ class BenchmarkTest extends TestCase
             $data = $this->generateRandomStrings($size);
             $list = new StringSortedLinkedList();
 
-            $time = $this->measureTime(function() use ($list, $data) {
+            $time = $this->measureTime(function () use ($list, $data) {
                 foreach ($data as $value) {
                     $list->add($value);
                 }
@@ -102,7 +102,7 @@ class BenchmarkTest extends TestCase
             $data = $this->generateRandomFloats($size);
             $list = new FloatSortedLinkedList();
 
-            $time = $this->measureTime(function() use ($list, $data) {
+            $time = $this->measureTime(function () use ($list, $data) {
                 foreach ($data as $value) {
                     $list->add($value);
                 }
@@ -128,14 +128,14 @@ class BenchmarkTest extends TestCase
         }
 
         // Best case: searching for first element
-        $bestTime = $this->measureTime(function() use ($list) {
+        $bestTime = $this->measureTime(function () use ($list) {
             for ($i = 0; $i < 100; $i++) {
                 $list->contains(0);
             }
         });
 
         // Worst case: searching for last element
-        $worstTime = $this->measureTime(function() use ($list) {
+        $worstTime = $this->measureTime(function () use ($list) {
             for ($i = 0; $i < 100; $i++) {
                 $list->contains(999);
             }
@@ -159,7 +159,7 @@ class BenchmarkTest extends TestCase
             }
 
             // Remove half the elements
-            $time = $this->measureTime(function() use ($list, $size) {
+            $time = $this->measureTime(function () use ($list, $size) {
                 for ($i = 0; $i < $size / 2; $i++) {
                     $list->remove($i * 2);
                 }
@@ -184,7 +184,7 @@ class BenchmarkTest extends TestCase
         }
 
         // Size() should be O(1)
-        $time = $this->measureTime(function() use ($list) {
+        $time = $this->measureTime(function () use ($list) {
             for ($i = 0; $i < 10000; $i++) {
                 $list->size();
             }
@@ -203,7 +203,7 @@ class BenchmarkTest extends TestCase
         }
 
         // Clear should be O(1)
-        $time = $this->measureTime(function() use ($list) {
+        $time = $this->measureTime(function () use ($list) {
             $list->clear();
         });
 

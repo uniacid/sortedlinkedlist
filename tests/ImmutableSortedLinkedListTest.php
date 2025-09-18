@@ -226,7 +226,8 @@ class ImmutableSortedLinkedListTest extends TestCase
 
         // Create reverse comparator
         $reverseComparator = new class implements \SortedLinkedList\Comparator\ComparatorInterface {
-            public function compare(mixed $a, mixed $b): int {
+            public function compare(mixed $a, mixed $b): int
+            {
                 return $b <=> $a; // Reverse order
             }
         };

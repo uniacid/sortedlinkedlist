@@ -135,14 +135,16 @@ abstract class SortedLinkedList implements \Iterator, \ArrayAccess, \Countable
             $newNode->setNext($this->head);
             $this->head = $newNode;
             $this->size++;
-        $this->invalidateCache();
+            $this->invalidateCache();
             return;
         }
 
         // Find the insertion point
         $current = $this->head;
-        while ($current->getNext() !== null &&
-               $this->compare($value, $current->getNext()->getValue()) > 0) {
+        while (
+            $current->getNext() !== null &&
+               $this->compare($value, $current->getNext()->getValue()) > 0
+        ) {
             $current = $current->getNext();
         }
 
