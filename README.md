@@ -261,3 +261,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - [ ] Parallel processing for bulk operations
 - [ ] Memory-mapped file backend for huge datasets
 - [ ] Redis/Memcached adapters
+- [ ] Serialization support for data persistence
