@@ -531,4 +531,269 @@ abstract class SortedLinkedList implements \Iterator, \ArrayAccess, \Countable
     {
         return $this->size;
     }
+
+    // Bulk Operations
+
+    /**
+     * Add all values from an iterable to the list.
+     *
+     * @param iterable<T> $values The values to add
+     */
+    public function addAll(iterable $values): void
+    {
+        // Convert to array for potential optimization
+        if (!is_array($values)) {
+            $values = iterator_to_array($values);
+        }
+
+        if (count($values) === 0) {
+            return;
+        }
+
+        // Optimization: If list is empty, sort array and build list directly
+        if ($this->head === null && count($values) > 1) {
+            // Sort the array using the comparator
+            usort($values, [$this, 'compare']);
+
+            // Build the list from sorted values
+            $firstValue = array_shift($values);
+            if ($firstValue === null) {
+                return;
+            }
+            $this->head = new Node($firstValue);
+            $this->size = 1;
+
+            $current = $this->head;
+            foreach ($values as $value) {
+                $newNode = new Node($value);
+                $current->setNext($newNode);
+                $current = $newNode;
+                $this->size++;
+            }
+
+            $this->invalidateCache();
+        } else {
+            // Regular insertion for non-empty lists
+            foreach ($values as $value) {
+                $this->add($value);
+            }
+        }
+    }
+
+    /**
+     * Remove all occurrences of the specified values from the list.
+     *
+     * @param iterable<T> $values The values to remove
+     */
+    public function removeAll(iterable $values): void
+    {
+        if (!is_array($values)) {
+            $values = iterator_to_array($values);
+        }
+
+        if (count($values) === 0) {
+            return;
+        }
+
+        // Create a set for O(1) lookups
+        $valuesToRemove = array_flip(array_map(
+            fn($v) => is_scalar($v) ? (string)$v : serialize($v),
+            $values
+        ));
+
+        $current = $this->head;
+        $previous = null;
+
+        while ($current !== null) {
+            $currentValueKey = is_scalar($current->getValue())
+                ? (string)$current->getValue()
+                : serialize($current->getValue());
+
+            if (isset($valuesToRemove[$currentValueKey])) {
+                // Remove this node
+                if ($previous === null) {
+                    // Removing head
+                    $this->head = $current->getNext();
+                } else {
+                    $previous->setNext($current->getNext());
+                }
+                $this->size--;
+                $this->invalidateCache();
+
+                // Don't update previous, as we removed current
+                $current = $previous === null ? $this->head : $previous->getNext();
+            } else {
+                // Move forward
+                $previous = $current;
+                $current = $current->getNext();
+            }
+        }
+    }
+
+    /**
+     * Retain only the values that are in the specified collection.
+     *
+     * @param iterable<T> $values The values to retain
+     */
+    public function retainAll(iterable $values): void
+    {
+        if (!is_array($values)) {
+            $values = iterator_to_array($values);
+        }
+
+        if (count($values) === 0) {
+            $this->clear();
+            return;
+        }
+
+        // Create a set for O(1) lookups
+        $valuesToRetain = array_flip(array_map(
+            fn($v) => is_scalar($v) ? (string)$v : serialize($v),
+            $values
+        ));
+
+        $current = $this->head;
+        $previous = null;
+
+        while ($current !== null) {
+            $currentValueKey = is_scalar($current->getValue())
+                ? (string)$current->getValue()
+                : serialize($current->getValue());
+
+            if (!isset($valuesToRetain[$currentValueKey])) {
+                // Remove this node
+                if ($previous === null) {
+                    // Removing head
+                    $this->head = $current->getNext();
+                } else {
+                    $previous->setNext($current->getNext());
+                }
+                $this->size--;
+                $this->invalidateCache();
+
+                // Don't update previous, as we removed current
+                $current = $previous === null ? $this->head : $previous->getNext();
+            } else {
+                // Move forward
+                $previous = $current;
+                $current = $current->getNext();
+            }
+        }
+    }
+
+    /**
+     * Check if the list contains all the specified values.
+     *
+     * @param iterable<T> $values The values to check
+     * @return bool True if all values are present, false otherwise
+     */
+    public function containsAll(iterable $values): bool
+    {
+        if (!is_array($values)) {
+            $values = iterator_to_array($values);
+        }
+
+        if (count($values) === 0) {
+            return true;
+        }
+
+        foreach ($values as $value) {
+            if (!$this->contains($value)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Convert the list to an array.
+     *
+     * @return array<int, T>
+     */
+    public function toArray(): array
+    {
+        $this->buildIndexCache();
+        return $this->indexCache ?? [];
+    }
+
+    /**
+     * Create a new sorted linked list from an array.
+     *
+     * @param array<T> $values The values to add
+     * @return static
+     */
+    public static function fromArray(array $values): static
+    {
+        /** @var static $list */
+        $list = new static();
+        $list->addAll($values);
+        return $list;
+    }
+
+    // Collection Transformation Methods
+
+    /**
+     * Apply a transformation function to each element.
+     *
+     * @param callable(T): T $callback The transformation function
+     * @return static A new list with transformed values
+     */
+    public function map(callable $callback): static
+    {
+        /** @var static $newList */
+        $newList = new static($this->comparator);
+
+        $current = $this->head;
+        while ($current !== null) {
+            $newList->add($callback($current->getValue()));
+            $current = $current->getNext();
+        }
+
+        return $newList;
+    }
+
+    /**
+     * Filter elements based on a predicate.
+     *
+     * @param callable(T): bool $predicate The filter predicate
+     * @return static A new list with filtered values
+     */
+    public function filter(callable $predicate): static
+    {
+        /** @var static $newList */
+        $newList = new static($this->comparator);
+
+        $current = $this->head;
+        while ($current !== null) {
+            $value = $current->getValue();
+            if ($predicate($value)) {
+                $newList->add($value);
+            }
+            $current = $current->getNext();
+        }
+
+        return $newList;
+    }
+
+    /**
+     * Reduce the list to a single value.
+     *
+     * @template R
+     * @param callable(R, T): R $callback The reduction function
+     * @param R $initial The initial value
+     * @return R The reduced value
+     */
+    public function reduce(callable $callback, mixed $initial): mixed
+    {
+        $accumulator = $initial;
+
+        $current = $this->head;
+        while ($current !== null) {
+            $accumulator = $callback($accumulator, $current->getValue());
+            $current = $current->getNext();
+        }
+
+        return $accumulator;
+    }
 }
