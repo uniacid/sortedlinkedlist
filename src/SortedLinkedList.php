@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace SortedLinkedList;
 
+use SortedLinkedList\Comparator\ComparatorInterface;
+
 /**
  * Abstract base class for a sorted linked list data structure.
  *
  * This class provides automatic sorting on insertion, maintaining elements
- * in sorted order based on the comparison logic defined by concrete subclasses.
+ * in sorted order based on the comparison logic defined by concrete subclasses
+ * or a provided comparator.
  *
  * @template T
  * @implements \Iterator<int, T>
@@ -29,6 +32,13 @@ abstract class SortedLinkedList implements \Iterator, \ArrayAccess, \Countable
      * @var int
      */
     protected int $size = 0;
+
+    /**
+     * Optional custom comparator for sorting.
+     *
+     * @var ComparatorInterface<T>|null
+     */
+    protected ?ComparatorInterface $comparator = null;
 
     /**
      * Current position for iterator.
@@ -52,16 +62,59 @@ abstract class SortedLinkedList implements \Iterator, \ArrayAccess, \Countable
     private ?array $indexCache = null;
 
     /**
+     * Constructor.
+     *
+     * @param ComparatorInterface<T>|null $comparator Optional custom comparator for sorting
+     */
+    public function __construct(?ComparatorInterface $comparator = null)
+    {
+        $this->comparator = $comparator;
+    }
+
+    /**
+     * Set a custom comparator for sorting.
+     *
+     * Note: Setting a new comparator will not re-sort existing elements.
+     * The new comparator will only affect future insertions.
+     *
+     * @param ComparatorInterface<T>|null $comparator The comparator to use, or null to use default
+     */
+    public function setComparator(?ComparatorInterface $comparator): void
+    {
+        $this->comparator = $comparator;
+    }
+
+    /**
+     * Get the current comparator.
+     *
+     * @return ComparatorInterface<T>|null The current comparator, or null if using default
+     */
+    public function getComparator(): ?ComparatorInterface
+    {
+        return $this->comparator;
+    }
+
+    /**
      * Compare two values for sorting.
      *
-     * This method must be implemented by concrete subclasses to define
-     * the sorting order for specific data types.
+     * This method can be overridden by concrete subclasses to define
+     * the sorting order for specific data types. If a comparator is provided,
+     * it will be used instead of this method.
      *
      * @param T $a The first value to compare
      * @param T $b The second value to compare
      * @return int Negative if $a < $b, positive if $a > $b, zero if equal
      */
-    abstract protected function compare(mixed $a, mixed $b): int;
+    protected function compare(mixed $a, mixed $b): int
+    {
+        if ($this->comparator !== null) {
+            return $this->comparator->compare($a, $b);
+        }
+
+        // Default implementation for backward compatibility
+        // Concrete subclasses should override this if not using a comparator
+        return $a <=> $b;
+    }
 
     /**
      * Add a new value to the list in sorted order.

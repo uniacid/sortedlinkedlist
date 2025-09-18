@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SortedLinkedList;
 
 use InvalidArgumentException;
+use SortedLinkedList\Comparator\ComparatorInterface;
 
 /**
  * A sorted linked list implementation specifically for integer values.
@@ -17,6 +18,16 @@ use InvalidArgumentException;
 class IntegerSortedLinkedList extends SortedLinkedList
 {
     /**
+     * Constructor.
+     *
+     * @param ComparatorInterface<int>|null $comparator Optional custom comparator for sorting
+     */
+    public function __construct(?ComparatorInterface $comparator = null)
+    {
+        parent::__construct($comparator);
+    }
+
+    /**
      * Compare two integer values for sorting.
      *
      * @param int $a The first integer to compare
@@ -25,6 +36,11 @@ class IntegerSortedLinkedList extends SortedLinkedList
      */
     protected function compare(mixed $a, mixed $b): int
     {
+        // Use parent implementation which checks for comparator first
+        if ($this->comparator !== null) {
+            return parent::compare($a, $b);
+        }
+
         // Type checking is done in the add method
         // Here we can safely assume both values are integers
         return $a <=> $b;

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SortedLinkedList;
 
 use InvalidArgumentException;
+use SortedLinkedList\Comparator\ComparatorInterface;
 
 /**
  * A sorted linked list implementation specifically for string values.
@@ -18,6 +19,16 @@ use InvalidArgumentException;
 class StringSortedLinkedList extends SortedLinkedList
 {
     /**
+     * Constructor.
+     *
+     * @param ComparatorInterface<string>|null $comparator Optional custom comparator for sorting
+     */
+    public function __construct(?ComparatorInterface $comparator = null)
+    {
+        parent::__construct($comparator);
+    }
+
+    /**
      * Compare two string values for sorting using lexicographic ordering.
      *
      * @param string $a The first string to compare
@@ -26,6 +37,11 @@ class StringSortedLinkedList extends SortedLinkedList
      */
     protected function compare(mixed $a, mixed $b): int
     {
+        // Use parent implementation which checks for comparator first
+        if ($this->comparator !== null) {
+            return parent::compare($a, $b);
+        }
+
         // Type checking is done in the add method
         // Both parameters are guaranteed to be strings when called
         /** @var string $a */

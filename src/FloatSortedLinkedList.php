@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SortedLinkedList;
 
 use InvalidArgumentException;
+use SortedLinkedList\Comparator\ComparatorInterface;
 
 /**
  * A sorted linked list implementation specifically for float values.
@@ -23,6 +24,16 @@ class FloatSortedLinkedList extends SortedLinkedList
     private const EPSILON = 1e-10;
 
     /**
+     * Constructor.
+     *
+     * @param ComparatorInterface<float>|null $comparator Optional custom comparator for sorting
+     */
+    public function __construct(?ComparatorInterface $comparator = null)
+    {
+        parent::__construct($comparator);
+    }
+
+    /**
      * Compare two float values for sorting with precision handling.
      *
      * @param float $a The first float to compare
@@ -31,6 +42,11 @@ class FloatSortedLinkedList extends SortedLinkedList
      */
     protected function compare(mixed $a, mixed $b): int
     {
+        // Use parent implementation which checks for comparator first
+        if ($this->comparator !== null) {
+            return parent::compare($a, $b);
+        }
+
         // Type checking is done in the add method
         // Here we can safely assume both values are floats
 
