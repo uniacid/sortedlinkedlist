@@ -371,6 +371,7 @@ class ImmutableSortedLinkedList extends SortedLinkedList
      * Override parent remove method to throw exception.
      *
      * @param T $value The value to remove
+     * @return bool Never returns, always throws exception
      * @throws \BadMethodCallException Always thrown for immutable list
      */
     public function remove(mixed $value): bool

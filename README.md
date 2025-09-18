@@ -3,8 +3,26 @@
 A high-performance, type-safe, automatically-sorted linked list data structure for PHP with advanced features including binary search optimization, custom comparators, bulk operations, and immutable variants.
 
 [![CI Status](https://github.com/uniacid/sortedlinkedlist/actions/workflows/ci.yml/badge.svg)](https://github.com/uniacid/sortedlinkedlist/actions)
+[![Coverage Status](https://coveralls.io/repos/github/uniacid/sortedlinkedlist/badge.svg?branch=master)](https://coveralls.io/github/uniacid/sortedlinkedlist?branch=master)
+[![Latest Stable Version](https://poser.pugx.org/uniacid/sortedlinkedlist/v/stable)](https://packagist.org/packages/uniacid/sortedlinkedlist)
+[![Total Downloads](https://poser.pugx.org/uniacid/sortedlinkedlist/downloads)](https://packagist.org/packages/uniacid/sortedlinkedlist)
+[![License](https://poser.pugx.org/uniacid/sortedlinkedlist/license)](https://packagist.org/packages/uniacid/sortedlinkedlist)
 [![PHP Version](https://img.shields.io/badge/PHP-%5E8.1-blue)](https://www.php.net)
-[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+[![PHPStan](https://img.shields.io/badge/PHPStan-level%209-brightgreen.svg?style=flat)](https://github.com/phpstan/phpstan)
+[![PSR-12](https://img.shields.io/badge/PSR-12-blue)](https://www.php-fig.org/psr/psr-12/)
+
+## Table of Contents
+
+- [Features](#features)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Documentation](#documentation)
+- [Performance Characteristics](#performance-characteristics)
+- [Advanced Usage](#advanced-usage)
+- [Testing](#testing)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Features
 
@@ -17,6 +35,12 @@ A high-performance, type-safe, automatically-sorted linked list data structure f
 - **Iterator Support**: Full PHP Iterator and ArrayAccess interface compliance
 - **Collection Transformations**: Map, filter, and reduce operations
 - **Performance Tracking**: Built-in statistics for performance analysis
+
+## Requirements
+
+- PHP 8.1 or higher
+- Composer for dependency management
+- No runtime dependencies (zero-dependency library)
 
 ## Installation
 
@@ -48,6 +72,174 @@ $list->addAll([3, 7, 4]);
 $filtered = $list->filter(fn($v) => $v > 3);
 $doubled = $list->map(fn($v) => $v * 2);
 ```
+
+## Usage Examples
+
+### Basic Operations with Different Types
+
+```php
+use SortedLinkedList\IntegerSortedLinkedList;
+use SortedLinkedList\StringSortedLinkedList;
+use SortedLinkedList\FloatSortedLinkedList;
+
+// Integer list
+$intList = new IntegerSortedLinkedList();
+$intList->add(42);
+$intList->add(17);
+$intList->add(99);
+echo $intList->first(); // 17
+echo $intList->last();  // 99
+
+// String list
+$stringList = new StringSortedLinkedList();
+$stringList->addAll(['banana', 'apple', 'cherry']);
+foreach ($stringList as $fruit) {
+    echo $fruit . ' '; // apple banana cherry
+}
+
+// Float list
+$floatList = new FloatSortedLinkedList();
+$floatList->addAll([3.14, 1.41, 2.71]);
+echo $floatList->get(1); // 2.71 (second element after sorting)
+```
+
+### Binary Search and Contains
+
+```php
+$list = new IntegerSortedLinkedList();
+$list->addAll(range(1, 1000));
+
+// Binary search (fast for large lists)
+$index = $list->binarySearch(500);
+if ($index >= 0) {
+    echo "Found at index: " . $index;
+}
+
+// Contains check
+if ($list->contains(750)) {
+    echo "List contains 750";
+}
+
+// Find first occurrence of value >= 400
+$index = $list->binarySearchInsertPosition(400);
+echo "Insert position for 400: " . $index;
+```
+
+### Collection Operations
+
+```php
+$list = new IntegerSortedLinkedList();
+$list->addAll([5, 2, 8, 1, 9, 3, 7]);
+
+// Filter elements
+$filtered = $list->filter(fn($v) => $v > 5);
+// Result: [7, 8, 9]
+
+// Map transformation
+$doubled = $list->map(fn($v) => $v * 2);
+// Result: [2, 4, 6, 10, 14, 16, 18]
+
+// Reduce to single value
+$sum = $list->reduce(fn($carry, $item) => $carry + $item, 0);
+echo "Sum: " . $sum; // 35
+
+// Slice operations
+$slice = $list->slice(2, 3); // Get 3 elements starting from index 2
+// Result: [3, 5, 7]
+```
+
+### Bulk Operations
+
+```php
+$list1 = new StringSortedLinkedList();
+$list1->addAll(['apple', 'banana', 'cherry']);
+
+$list2 = new StringSortedLinkedList();
+$list2->addAll(['banana', 'date', 'elderberry']);
+
+// Remove all elements that exist in list2
+$list1->removeAll($list2);
+// list1 now contains: ['apple', 'cherry']
+
+// Retain only elements that exist in both
+$list3 = new StringSortedLinkedList();
+$list3->addAll(['apple', 'banana', 'cherry']);
+$list3->retainAll(['banana', 'cherry', 'date']);
+// list3 now contains: ['banana', 'cherry']
+```
+
+### Array Access Interface
+
+```php
+$list = new IntegerSortedLinkedList();
+$list->addAll([30, 10, 20]);
+
+// Array-like access
+echo $list[0];  // 10 (first sorted element)
+echo $list[1];  // 20
+echo $list[2];  // 30
+
+// Check if index exists
+if (isset($list[1])) {
+    echo "Index 1 exists";
+}
+
+// Note: Setting values via array access maintains sort order
+$list[3] = 15;  // Adds 15 to the list in sorted position
+```
+
+### Iterator and Foreach
+
+```php
+$list = new StringSortedLinkedList();
+$list->addAll(['zebra', 'alpha', 'beta']);
+
+// Standard foreach
+foreach ($list as $index => $value) {
+    echo "$index: $value\n";
+}
+// Output:
+// 0: alpha
+// 1: beta
+// 2: zebra
+
+// Manual iteration
+$list->rewind();
+while ($list->valid()) {
+    echo $list->current() . "\n";
+    $list->next();
+}
+```
+
+### Converting to Array
+
+```php
+$list = new FloatSortedLinkedList();
+$list->addAll([3.14, 1.41, 2.71, 1.73]);
+
+// Convert to array
+$array = $list->toArray();
+// Result: [1.41, 1.73, 2.71, 3.14]
+
+// Get values only (same as toArray)
+$values = $list->values();
+
+// Check if empty
+if (!$list->isEmpty()) {
+    echo "List has " . $list->size() . " elements";
+}
+
+// Clear all elements
+$list->clear();
+echo $list->isEmpty() ? "Empty" : "Not empty"; // Empty
+```
+
+## Documentation
+
+- [API Documentation](https://uniacid.github.io/sortedlinkedlist/) - Complete class and method references
+- [Usage Examples](#advanced-usage) - Detailed examples for all features
+- [Performance Guide](#performance-characteristics) - Benchmarks and optimization tips
+- [Contributing Guidelines](CONTRIBUTING.md) - How to contribute to the project
 
 ## Performance Characteristics
 
