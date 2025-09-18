@@ -16,7 +16,8 @@
         "phpunit/phpunit": "^10.5",
         "phpstan/phpstan": "^1.10",
         "phpstan/phpstan-strict-rules": "^1.5",
-        "phpstan/phpstan-phpunit": "^1.3"
+        "phpstan/phpstan-phpunit": "^1.3",
+        "phpbench/phpbench": "^1.2"
     },
     "autoload": {
         "psr-4": {
@@ -25,13 +26,17 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "SortedLinkedList\\Tests\\": "tests/"
+            "SortedLinkedList\\Tests\\": "tests/",
+            "SortedLinkedList\\Benchmarks\\": "benchmarks/"
         }
     },
     "scripts": {
         "test": "phpunit",
         "test-coverage": "XDEBUG_MODE=coverage phpunit --coverage-text --coverage-html=coverage",
         "analyse": "phpstan analyse",
+        "bench": "phpbench run --report=default",
+        "bench-compare": "phpbench run --report=compare",
+        "bench-memory": "phpbench run --report=memory",
         "check": [
             "@test",
             "@analyse"
