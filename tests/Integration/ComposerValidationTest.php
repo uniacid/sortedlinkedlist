@@ -12,6 +12,7 @@ use PHPUnit\Framework\TestCase;
 class ComposerValidationTest extends TestCase
 {
     private string $composerPath;
+    /** @var array<string, mixed> */
     private array $composerData;
 
     protected function setUp(): void
@@ -27,8 +28,9 @@ class ComposerValidationTest extends TestCase
         $content = file_get_contents($this->composerPath);
         $this->assertIsString($content);
 
-        $this->composerData = json_decode($content, true);
-        $this->assertIsArray($this->composerData);
+        $decodedData = json_decode($content, true);
+        $this->assertIsArray($decodedData);
+        $this->composerData = $decodedData;
         $this->assertEquals(
             JSON_ERROR_NONE,
             json_last_error(),
@@ -133,7 +135,10 @@ class ComposerValidationTest extends TestCase
         $this->assertIsArray($this->composerData['authors']);
         $this->assertNotEmpty($this->composerData['authors']);
 
-        foreach ($this->composerData['authors'] as $author) {
+        $authors = $this->composerData['authors'];
+        $this->assertIsArray($authors);
+        foreach ($authors as $author) {
+            $this->assertIsArray($author);
             $this->assertArrayHasKey('name', $author);
             $this->assertNotEmpty($author['name']);
         }
@@ -155,18 +160,25 @@ class ComposerValidationTest extends TestCase
         if (isset($this->composerData['support'])) {
             $this->assertIsArray($this->composerData['support']);
 
-            if (isset($this->composerData['support']['issues'])) {
+            $support = $this->composerData['support'];
+            $this->assertIsArray($support);
+
+            if (isset($support['issues'])) {
+                $issuesUrl = $support['issues'];
+                $this->assertIsString($issuesUrl);
                 $this->assertMatchesRegularExpression(
                     '/^https?:\/\/.+/',
-                    $this->composerData['support']['issues'],
+                    $issuesUrl,
                     'Issues URL must be valid'
                 );
             }
 
-            if (isset($this->composerData['support']['source'])) {
+            if (isset($support['source'])) {
+                $sourceUrl = $support['source'];
+                $this->assertIsString($sourceUrl);
                 $this->assertMatchesRegularExpression(
                     '/^https?:\/\/.+/',
-                    $this->composerData['support']['source'],
+                    $sourceUrl,
                     'Source URL must be valid'
                 );
             }
