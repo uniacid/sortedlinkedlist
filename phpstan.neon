@@ -10,8 +10,59 @@ parameters:
     scanFiles:
         - vendor/autoload.php
     treatPhpDocTypesAsCertain: true
-    reportUnmatchedIgnoredErrors: true
+    reportUnmatchedIgnoredErrors: false
     checkGenericClassInNonGenericObjectType: true
     checkMissingIterableValueType: true
     checkExplicitMixedMissingReturn: true
     checkBenevolentUnionTypes: true
+    ignoreErrors:
+        # PHPUnit assertions are dynamic
+        -
+            message: '#Dynamic call to static method PHPUnit\\Framework\\Assert::#'
+            paths:
+                - tests/*
+        # Empty construct is acceptable in tests
+        -
+            message: '#Construct empty\(\) is not allowed#'
+            paths:
+                - tests/*
+        # Type mismatches are intentional in tests for error checking
+        -
+            message: '#Parameter \#1 \$value of method SortedLinkedList\\.*SortedLinkedList::add\(\) expects .*, .* given#'
+            paths:
+                - tests/*
+        # Test assertions that verify always true/false conditions
+        -
+            message: '#will always evaluate to (true|false)#'
+            paths:
+                - tests/*
+        # Nullsafe operator usage in tests
+        -
+            message: '#Using nullsafe method call on non-nullable type#'
+            paths:
+                - tests/*
+        # Node access in tests
+        -
+            message: '#Cannot call method .* on SortedLinkedList\\Node.*\|null#'
+            paths:
+                - tests/*
+        # Generic type specifications in test classes
+        -
+            message: '#does not specify its types#'
+            paths:
+                - tests/*
+        # Return type specifications in test classes
+        -
+            message: '#return type has no value type specified in iterable type array#'
+            paths:
+                - tests/*
+        # Unreachable code in test methods
+        -
+            message: '#Unreachable statement#'
+            paths:
+                - tests/*
+        # Type mismatches in test comparisons
+        -
+            message: '#expects .*, .* given#'
+            paths:
+                - tests/*

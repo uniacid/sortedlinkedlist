@@ -317,4 +317,57 @@ class IntegerSortedLinkedListTest extends TestCase
 
         $this->assertEquals(count($values), $this->list->size());
     }
+
+    public function testAddWithWrongTypeThrowsException(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Value must be an integer');
+
+        // @phpstan-ignore-next-line
+        $this->list->add("not an integer");
+    }
+
+    public function testAddWithFloatThrowsException(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Value must be an integer');
+
+        // @phpstan-ignore-next-line
+        $this->list->add(3.14);
+    }
+
+    public function testRemoveWithWrongTypeReturnsFalse(): void
+    {
+        $this->list->add(1);
+        $this->list->add(2);
+        $this->list->add(3);
+
+        // @phpstan-ignore-next-line
+        $this->assertFalse($this->list->remove("2"));
+        // @phpstan-ignore-next-line
+        $this->assertFalse($this->list->remove(2.0));
+        // @phpstan-ignore-next-line
+        $this->assertFalse($this->list->remove(null));
+
+        $this->assertEquals(3, $this->list->size());
+    }
+
+    public function testContainsWithWrongTypeReturnsFalse(): void
+    {
+        $this->list->add(1);
+        $this->list->add(2);
+        $this->list->add(3);
+
+        // @phpstan-ignore-next-line
+        $this->assertFalse($this->list->contains("1"));
+        // @phpstan-ignore-next-line
+        $this->assertFalse($this->list->contains(1.0));
+        // @phpstan-ignore-next-line
+        $this->assertFalse($this->list->contains(null));
+        // @phpstan-ignore-next-line
+        $this->assertFalse($this->list->contains(true));
+
+        $this->assertTrue($this->list->contains(1));
+        $this->assertTrue($this->list->contains(2));
+    }
 }

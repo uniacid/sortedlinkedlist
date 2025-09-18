@@ -393,4 +393,59 @@ class StringSortedLinkedListTest extends TestCase
 
         $this->assertEquals(count($values), $this->list->size());
     }
+
+    public function testAddWithIntegerThrowsException(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Value must be a string');
+
+        // @phpstan-ignore-next-line
+        $this->list->add(123);
+    }
+
+    public function testAddWithFloatThrowsException(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Value must be a string');
+
+        // @phpstan-ignore-next-line
+        $this->list->add(3.14);
+    }
+
+    public function testRemoveWithWrongTypeReturnsFalse(): void
+    {
+        $this->list->add("apple");
+        $this->list->add("banana");
+        $this->list->add("cherry");
+
+        // @phpstan-ignore-next-line
+        $this->assertFalse($this->list->remove(123));
+        // @phpstan-ignore-next-line
+        $this->assertFalse($this->list->remove(3.14));
+        // @phpstan-ignore-next-line
+        $this->assertFalse($this->list->remove(null));
+        // @phpstan-ignore-next-line
+        $this->assertFalse($this->list->remove(true));
+
+        $this->assertEquals(3, $this->list->size());
+    }
+
+    public function testContainsWithWrongTypeReturnsFalse(): void
+    {
+        $this->list->add("apple");
+        $this->list->add("banana");
+        $this->list->add("cherry");
+
+        // @phpstan-ignore-next-line
+        $this->assertFalse($this->list->contains(123));
+        // @phpstan-ignore-next-line
+        $this->assertFalse($this->list->contains(3.14));
+        // @phpstan-ignore-next-line
+        $this->assertFalse($this->list->contains(null));
+        // @phpstan-ignore-next-line
+        $this->assertFalse($this->list->contains(false));
+
+        $this->assertTrue($this->list->contains("apple"));
+        $this->assertTrue($this->list->contains("banana"));
+    }
 }

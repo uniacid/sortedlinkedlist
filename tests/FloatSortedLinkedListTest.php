@@ -433,4 +433,57 @@ class FloatSortedLinkedListTest extends TestCase
         $this->assertTrue($this->list->contains(0.1234567890123456));
         $this->assertTrue($this->list->contains(0.1234567890123457));
     }
+
+    public function testAddWithWrongTypeThrowsException(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Value must be a float');
+
+        // @phpstan-ignore-next-line
+        $this->list->add("not a float");
+    }
+
+    public function testAddWithIntegerThrowsException(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Value must be a float');
+
+        // @phpstan-ignore-next-line
+        $this->list->add(42);
+    }
+
+    public function testRemoveWithWrongTypeReturnsFalse(): void
+    {
+        $this->list->add(1.5);
+        $this->list->add(2.5);
+        $this->list->add(3.5);
+
+        // @phpstan-ignore-next-line
+        $this->assertFalse($this->list->remove("2.5"));
+        // @phpstan-ignore-next-line
+        $this->assertFalse($this->list->remove(2));
+        // @phpstan-ignore-next-line
+        $this->assertFalse($this->list->remove(null));
+
+        $this->assertEquals(3, $this->list->size());
+    }
+
+    public function testContainsWithWrongTypeReturnsFalse(): void
+    {
+        $this->list->add(1.1);
+        $this->list->add(2.2);
+        $this->list->add(3.3);
+
+        // @phpstan-ignore-next-line
+        $this->assertFalse($this->list->contains("1.1"));
+        // @phpstan-ignore-next-line
+        $this->assertFalse($this->list->contains(1));
+        // @phpstan-ignore-next-line
+        $this->assertFalse($this->list->contains(null));
+        // @phpstan-ignore-next-line
+        $this->assertFalse($this->list->contains(true));
+
+        $this->assertTrue($this->list->contains(1.1));
+        $this->assertTrue($this->list->contains(2.2));
+    }
 }
