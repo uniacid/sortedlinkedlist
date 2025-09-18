@@ -4,11 +4,28 @@
     "homepage": "https://github.com/uniacid/sortedlinkedlist",
     "type": "library",
     "license": "MIT",
+    "keywords": [
+        "sorted-list",
+        "linked-list",
+        "data-structure",
+        "collection",
+        "type-safe",
+        "psr-12",
+        "sorting",
+        "binary-search",
+        "iterator"
+    ],
     "authors": [
         {
-            "name": "SortedLinkedList Contributors"
+            "name": "SortedLinkedList Contributors",
+            "homepage": "https://github.com/uniacid/sortedlinkedlist/graphs/contributors"
         }
     ],
+    "support": {
+        "issues": "https://github.com/uniacid/sortedlinkedlist/issues",
+        "source": "https://github.com/uniacid/sortedlinkedlist",
+        "docs": "https://github.com/uniacid/sortedlinkedlist#readme"
+    },
     "require": {
         "php": "^8.1"
     },
