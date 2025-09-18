@@ -1,0 +1,16 @@
+# Jekyll configuration for GitHub Pages
+title: SortedLinkedList Documentation
+description: A type-safe, automatically-sorted linked list data structure for PHP
+theme: jekyll-theme-minimal
+
+# Exclude API documentation from Jekyll processing
+exclude:
+  - api/
+
+# GitHub Pages settings
+baseurl: /SortedLinkedList
+url: https://uniacid.github.io
+
+# Additional settings
+timezone: UTC
+encoding: utf-8

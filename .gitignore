@@ -8,3 +8,7 @@ composer.lock
 *.swo
 .idea/
 .vscode/
+
+# Documentation
+/.phpdoc/
+/docs/api/

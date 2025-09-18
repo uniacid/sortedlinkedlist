@@ -9,6 +9,8 @@ namespace SortedLinkedList\Comparator;
  *
  * This class provides convenient static methods for creating
  * commonly used comparators.
+ *
+ * @package SortedLinkedList\Comparator
  */
 class ComparatorFactory
 {
