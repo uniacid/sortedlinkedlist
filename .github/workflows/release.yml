@@ -1,0 +1,262 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 1.0.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    name: Validate Release
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, dom, fileinfo, simplexml
+          coverage: xdebug
+          tools: composer:v2
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: Run full test suite
+        run: vendor/bin/phpunit --coverage-text
+
+      - name: Run PHPStan analysis
+        run: vendor/bin/phpstan analyse
+
+      - name: Validate composer.json
+        run: composer validate --strict
+
+  build:
+    runs-on: ubuntu-latest
+    needs: validate
+    name: Build Release Artifacts
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, dom, fileinfo, simplexml
+          coverage: none
+          tools: composer:v2
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-dev
+
+      - name: Generate API documentation
+        run: |
+          composer require --dev phpdocumentor/phpdocumentor
+          php -d error_reporting=E_ALL^E_DEPRECATED vendor/bin/phpdoc -c phpdoc.dist.xml
+
+      - name: Create distribution archive
+        run: |
+          mkdir -p dist
+          tar -czf dist/sortedlinkedlist.tar.gz \
+            --exclude=dist \
+            --exclude=.git \
+            --exclude=.github \
+            --exclude=tests \
+            --exclude=benchmarks \
+            --exclude=.phpunit.cache \
+            --exclude=coverage \
+            --exclude=docs \
+            --exclude=vendor \
+            --exclude=.*.yml \
+            --exclude=phpunit.xml \
+            --exclude=phpstan.neon \
+            --exclude=phpdoc.dist.xml \
+            --exclude=phpbench.json \
+            --exclude=*.md \
+            .
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-artifacts
+          path: dist/
+
+  release:
+    runs-on: ubuntu-latest
+    needs: build
+    name: Create GitHub Release
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: release-artifacts
+          path: dist/
+
+      - name: Get version from tag
+        id: get_version
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            VERSION="v${{ github.event.inputs.version }}"
+          else
+            VERSION="${GITHUB_REF#refs/tags/}"
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "VERSION_WITHOUT_V=${VERSION#v}" >> $GITHUB_OUTPUT
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # Get the previous tag
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+
+          if [ -z "$PREVIOUS_TAG" ]; then
+            # First release
+            echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
+            echo "## Initial Release" >> $GITHUB_OUTPUT
+            echo "" >> $GITHUB_OUTPUT
+            echo "First public release of SortedLinkedList PHP library." >> $GITHUB_OUTPUT
+            echo "" >> $GITHUB_OUTPUT
+            echo "### Features" >> $GITHUB_OUTPUT
+            echo "- Type-safe sorted linked list implementation" >> $GITHUB_OUTPUT
+            echo "- Binary search capabilities" >> $GITHUB_OUTPUT
+            echo "- Custom comparator support" >> $GITHUB_OUTPUT
+            echo "- Iterator and ArrayAccess interfaces" >> $GITHUB_OUTPUT
+            echo "- Comprehensive test coverage" >> $GITHUB_OUTPUT
+            echo "- PHPStan level max compliance" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            # Generate changelog from commits
+            echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
+            echo "## What's Changed" >> $GITHUB_OUTPUT
+            echo "" >> $GITHUB_OUTPUT
+
+            # Group commits by type
+            git log $PREVIOUS_TAG..HEAD --pretty=format:"- %s (%h)" | while read line; do
+              echo "$line" >> $GITHUB_OUTPUT
+            done
+
+            echo "" >> $GITHUB_OUTPUT
+            echo "" >> $GITHUB_OUTPUT
+            echo "**Full Changelog**: https://github.com/${{ github.repository }}/compare/$PREVIOUS_TAG...${{ steps.get_version.outputs.VERSION }}" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.get_version.outputs.VERSION }}
+          name: Release ${{ steps.get_version.outputs.VERSION }}
+          body: |
+            ${{ steps.changelog.outputs.CHANGELOG }}
+
+            ## Installation
+
+            ```bash
+            composer require uniacid/sortedlinkedlist:^${{ steps.get_version.outputs.VERSION_WITHOUT_V }}
+            ```
+
+            ## Documentation
+
+            - [API Documentation](https://uniacid.github.io/sortedlinkedlist/)
+            - [README](https://github.com/${{ github.repository }}#readme)
+
+          files: |
+            dist/sortedlinkedlist.tar.gz
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+
+  update-docs:
+    runs-on: ubuntu-latest
+    needs: release
+    name: Update Documentation
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, dom, fileinfo, simplexml
+          coverage: none
+          tools: composer:v2
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: Generate documentation
+        run: |
+          php -d error_reporting=E_ALL^E_DEPRECATED vendor/bin/phpdoc -c phpdoc.dist.xml
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs/api
+          force_orphan: true
+
+  notify-packagist:
+    runs-on: ubuntu-latest
+    needs: release
+    name: Notify Packagist
+
+    steps:
+      - name: Notify Packagist
+        run: |
+          if [ -n "${{ secrets.PACKAGIST_API_TOKEN }}" ]; then
+            curl -X POST https://packagist.org/api/update-package?username=uniacid&apiToken=${{ secrets.PACKAGIST_API_TOKEN }} \
+              -d '{"repository":{"url":"https://github.com/${{ github.repository }}"}}'
+          else
+            echo "PACKAGIST_API_TOKEN not set, skipping Packagist notification"
+            echo "Packagist will update automatically via GitHub webhook"
+          fi

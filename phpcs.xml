@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<ruleset name="SortedLinkedList Coding Standard">
+    <description>PSR-12 coding standard for SortedLinkedList library</description>
+
+    <!-- Use PSR-12 as the base standard -->
+    <rule ref="PSR12"/>
+
+    <!-- Paths to check -->
+    <file>src</file>
+    <file>tests</file>
+    <file>benchmarks</file>
+
+    <!-- Exclude paths -->
+    <exclude-pattern>vendor/</exclude-pattern>
+    <exclude-pattern>docs/</exclude-pattern>
+    <exclude-pattern>coverage/</exclude-pattern>
+    <exclude-pattern>.phpunit.cache/</exclude-pattern>
+    <exclude-pattern>.phpdoc/</exclude-pattern>
+    <exclude-pattern>*.js</exclude-pattern>
+    <exclude-pattern>*.css</exclude-pattern>
+
+    <!-- Show progress and colors -->
+    <arg value="p"/>
+    <arg name="colors"/>
+
+    <!-- Set file extensions to check -->
+    <arg name="extensions" value="php"/>
+
+    <!-- Enable parallel processing for faster checks -->
+    <arg name="parallel" value="8"/>
+
+    <!-- Report width -->
+    <arg name="report-width" value="120"/>
+
+    <!-- Additional rules for better code quality -->
+    <rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
+    <rule ref="Generic.Files.LineLength">
+        <properties>
+            <property name="lineLimit" value="120"/>
+            <property name="absoluteLineLimit" value="150"/>
+        </properties>
+    </rule>
+
+    <!-- Ensure strict types declaration -->
+    <rule ref="Generic.PHP.RequireStrictTypes"/>
+
+    <!-- Exclude some specific rules for test files -->
+    <rule ref="PSR1.Methods.CamelCapsMethodName.NotCamelCaps">
+        <exclude-pattern>tests/</exclude-pattern>
+    </rule>
+
+    <!-- Allow test methods to have underscores -->
+    <rule ref="PSR1.Methods.CamelCapsMethodName">
+        <exclude-pattern>tests/</exclude-pattern>
+    </rule>
+
+    <!-- Custom sniff configuration -->
+    <config name="installed_paths" value="../../slevomat/coding-standard"/>
+</ruleset>

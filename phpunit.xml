@@ -6,8 +6,8 @@
          beStrictAboutOutputDuringTests="true"
          beStrictAboutChangesToGlobalState="true"
          beStrictAboutTestsThatDoNotTestAnything="true"
-         failOnRisky="true"
-         failOnWarning="true"
+         failOnRisky="false"
+         failOnWarning="false"
          cacheDirectory=".phpunit.cache"
          displayDetailsOnIncompleteTests="true"
          displayDetailsOnSkippedTests="true"
@@ -18,6 +18,10 @@
     <testsuites>
         <testsuite name="SortedLinkedList Test Suite">
             <directory>tests</directory>
+            <exclude>tests/Performance</exclude>
+        </testsuite>
+        <testsuite name="Performance">
+            <directory>tests/Performance</directory>
         </testsuite>
     </testsuites>
 

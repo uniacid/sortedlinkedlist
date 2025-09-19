@@ -1,0 +1,269 @@
+name: Performance Benchmarks (Parallel)
+
+on:
+  push:
+    branches: [ master, main, develop ]
+  pull_request:
+    branches: [ master, main, develop ]
+  workflow_dispatch:
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    name: Setup Dependencies
+    outputs:
+      cache-key: ${{ steps.composer-cache.outputs.key }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, dom, fileinfo
+          coverage: none
+          tools: composer:v2
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: |
+          echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+          echo "key=${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}" >> $GITHUB_OUTPUT
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ steps.composer-cache.outputs.key }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+
+  benchmark-add-search:
+    needs: setup
+    runs-on: ubuntu-latest
+    name: Add & Search Operations
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, dom, fileinfo
+          coverage: none
+          tools: composer:v2
+
+      - name: Restore composer cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache
+          key: ${{ needs.setup.outputs.cache-key }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: Run Add operations benchmarks
+        run: |
+          mkdir -p .phpbench
+          vendor/bin/phpbench run --config=phpbench-ci.json --filter='AddOperations' --tag=add --store || echo "::warning::Add benchmarks completed with warnings"
+
+      - name: Run Search operations benchmarks
+        run: |
+          vendor/bin/phpbench run --config=phpbench-ci.json --filter='SearchOperations' --tag=search --store || echo "::warning::Search benchmarks completed with warnings"
+
+      - name: Generate report
+        if: always()
+        run: |
+          mkdir -p benchmark-results
+          echo "## Add & Search Operations Benchmarks" > benchmark-results/add-search.txt
+          vendor/bin/phpbench show --uuid=tag:add >> benchmark-results/add-search.txt || echo "No add results"
+          vendor/bin/phpbench show --uuid=tag:search >> benchmark-results/add-search.txt || echo "No search results"
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-add-search
+          path: benchmark-results/
+
+  benchmark-bulk-iteration:
+    needs: setup
+    runs-on: ubuntu-latest
+    name: Bulk & Iteration Operations
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, dom, fileinfo
+          coverage: none
+          tools: composer:v2
+
+      - name: Restore composer cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache
+          key: ${{ needs.setup.outputs.cache-key }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: Run Bulk operations benchmarks
+        run: |
+          mkdir -p .phpbench
+          vendor/bin/phpbench run --config=phpbench-ci.json --filter='BulkOperations' --tag=bulk --store || echo "::warning::Bulk benchmarks completed with warnings"
+
+      - name: Run Iteration benchmarks
+        run: |
+          vendor/bin/phpbench run --config=phpbench-ci.json --filter='Iteration' --tag=iteration --store || echo "::warning::Iteration benchmarks completed with warnings"
+
+      - name: Generate report
+        if: always()
+        run: |
+          mkdir -p benchmark-results
+          echo "## Bulk & Iteration Operations Benchmarks" > benchmark-results/bulk-iteration.txt
+          vendor/bin/phpbench show --uuid=tag:bulk >> benchmark-results/bulk-iteration.txt || echo "No bulk results"
+          vendor/bin/phpbench show --uuid=tag:iteration >> benchmark-results/bulk-iteration.txt || echo "No iteration results"
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-bulk-iteration
+          path: benchmark-results/
+
+  benchmark-memory-immutable:
+    needs: setup
+    runs-on: ubuntu-latest
+    name: Memory & Immutable Operations
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP with memory profiling
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, dom, fileinfo
+          coverage: none
+          tools: composer:v2
+          ini-values: memory_limit=256M
+
+      - name: Restore composer cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache
+          key: ${{ needs.setup.outputs.cache-key }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: Run Memory usage benchmarks
+        run: |
+          mkdir -p .phpbench
+          vendor/bin/phpbench run --config=phpbench-ci.json --filter='MemoryUsage' --tag=memory --store || echo "::warning::Memory benchmarks completed with warnings"
+
+      - name: Run Immutable operations benchmarks
+        run: |
+          vendor/bin/phpbench run --config=phpbench-ci.json --filter='ImmutableOperations' --tag=immutable --store || echo "::warning::Immutable benchmarks completed with warnings"
+
+      - name: Generate report
+        if: always()
+        run: |
+          mkdir -p benchmark-results
+          echo "## Memory & Immutable Operations Benchmarks" > benchmark-results/memory-immutable.txt
+          vendor/bin/phpbench show --uuid=tag:memory >> benchmark-results/memory-immutable.txt || echo "No memory results"
+          vendor/bin/phpbench show --uuid=tag:immutable >> benchmark-results/memory-immutable.txt || echo "No immutable results"
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-memory-immutable
+          path: benchmark-results/
+
+  benchmark-summary:
+    needs: [benchmark-add-search, benchmark-bulk-iteration, benchmark-memory-immutable]
+    runs-on: ubuntu-latest
+    name: Benchmark Summary
+    if: always()
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: benchmark-*
+          merge-multiple: true
+
+      - name: Create summary
+        run: |
+          echo "## 📊 Performance Benchmark Results" > summary.md
+          echo "" >> summary.md
+          echo "### Parallel Benchmark Execution Complete" >> summary.md
+          echo "" >> summary.md
+
+          if [ -f "add-search.txt" ]; then
+            cat add-search.txt >> summary.md
+            echo "" >> summary.md
+          fi
+
+          if [ -f "bulk-iteration.txt" ]; then
+            cat bulk-iteration.txt >> summary.md
+            echo "" >> summary.md
+          fi
+
+          if [ -f "memory-immutable.txt" ]; then
+            cat memory-immutable.txt >> summary.md
+            echo "" >> summary.md
+          fi
+
+          echo "---" >> summary.md
+          echo "[View full results](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> summary.md
+
+      - name: Comment PR with results
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const comment = fs.readFileSync('summary.md', 'utf8');
+
+            try {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            } catch (error) {
+              console.log('Could not create PR comment:', error.message);
+            }
