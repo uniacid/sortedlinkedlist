@@ -64,23 +64,14 @@ class FloatSortedLinkedList extends SortedLinkedList
             return $b > 0 ? -1 : 1;
         }
 
-        // Use relative epsilon comparison for better float precision handling
-        // This scales with the magnitude of the values being compared
+        // Simplified epsilon comparison
         $diff = $a - $b;
-        $absA = abs($a);
-        $absB = abs($b);
-        $maxAbs = max($absA, $absB);
 
-        // For numbers close to zero, use absolute epsilon
-        // For larger numbers, use relative epsilon
-        if ($maxAbs < 1.0) {
-            if (abs($diff) < self::EPSILON) {
-                return 0;
-            }
-        } else {
-            if (abs($diff) <= $maxAbs * self::EPSILON) {
-                return 0;
-            }
+        // Use relative epsilon scaled to the magnitude of values
+        $epsilon = self::EPSILON * max(abs($a), abs($b), 1.0);
+
+        if (abs($diff) <= $epsilon) {
+            return 0;
         }
 
         return $diff > 0 ? 1 : -1;

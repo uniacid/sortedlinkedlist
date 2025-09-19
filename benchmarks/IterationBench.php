@@ -20,7 +20,7 @@ use SortedLinkedList\FloatSortedLinkedList;
  * @OutputTimeUnit("microseconds", precision=3)
  * @Groups({"iteration", "comparison"})
  */
-class IterationBench
+class IterationBench extends AbstractBenchmark
 {
     private IntegerSortedLinkedList $integerList;
     private StringSortedLinkedList $stringList;
@@ -63,13 +63,7 @@ class IterationBench
      */
     public function provideDataSizes(): array
     {
-        return [
-            'small' => ['size' => 100],
-            'medium' => ['size' => 500],
-            'large' => ['size' => 1000],
-            'xlarge' => ['size' => 5000],
-            'xxlarge' => ['size' => 10000],
-        ];
+        return $this->provideIterationDataSizes();
     }
 
     /**

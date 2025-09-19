@@ -19,7 +19,7 @@ use SortedLinkedList\StringSortedLinkedList;
  * @OutputTimeUnit("microseconds", precision=3)
  * @Groups({"search", "comparison"})
  */
-class SearchOperationsBench
+class SearchOperationsBench extends AbstractBenchmark
 {
     private IntegerSortedLinkedList $integerList;
     private StringSortedLinkedList $stringList;
@@ -81,14 +81,7 @@ class SearchOperationsBench
      */
     public function provideDataSizes(): array
     {
-        return [
-            'tiny' => ['size' => 10],
-            'small' => ['size' => 100],
-            'medium' => ['size' => 500],
-            'large' => ['size' => 1000],
-            'xlarge' => ['size' => 5000],
-            'xxlarge' => ['size' => 10000],
-        ];
+        return $this->provideSearchDataSizes();
     }
 
     /**

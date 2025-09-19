@@ -19,7 +19,7 @@ use SortedLinkedList\StringSortedLinkedList;
  * @OutputTimeUnit("microseconds", precision=3)
  * @Groups({"bulk", "comparison"})
  */
-class BulkOperationsBench
+class BulkOperationsBench extends AbstractBenchmark
 {
     private IntegerSortedLinkedList $integerList;
     private StringSortedLinkedList $stringList;
@@ -77,12 +77,7 @@ class BulkOperationsBench
      */
     public function provideDataSizes(): array
     {
-        return [
-            'small' => ['size' => 100, 'bulk_size' => 50],
-            'medium' => ['size' => 500, 'bulk_size' => 250],
-            'large' => ['size' => 1000, 'bulk_size' => 500],
-            'xlarge' => ['size' => 5000, 'bulk_size' => 2500],
-        ];
+        return $this->provideBulkDataSizes();
     }
 
     /**

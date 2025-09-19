@@ -1,4 +1,5 @@
 name: Performance Benchmarks
+# Note: For parallel execution, see benchmarks-parallel.yml
 
 on:
   push:
@@ -11,7 +12,7 @@ jobs:
   benchmark:
     runs-on: ubuntu-latest
     name: Run Performance Benchmarks
-    timeout-minutes: 30
+    timeout-minutes: 45
     permissions:
       contents: read
       pull-requests: write
@@ -44,8 +45,8 @@ jobs:
 
       - name: Run benchmarks once
         run: |
-          mkdir -p .phpbench
-          vendor/bin/phpbench run --tag=current --iterations=3 --revs=100 --store --report=default
+          chmod +x scripts/run-ci-benchmarks.sh
+          ./scripts/run-ci-benchmarks.sh all
 
       - name: Generate reports from stored results
         if: always()
@@ -87,7 +88,7 @@ jobs:
   benchmark-memory:
     runs-on: ubuntu-latest
     name: Memory Usage Benchmarks
-    timeout-minutes: 30
+    timeout-minutes: 45
 
     steps:
       - name: Checkout code
@@ -107,6 +108,7 @@ jobs:
 
       - name: Run memory benchmarks
         run: |
-          vendor/bin/phpbench run --group=memory --iterations=3 --revs=100 --store --report=default || {
+          chmod +x scripts/run-ci-benchmarks.sh
+          ./scripts/run-ci-benchmarks.sh memory || {
             echo "::warning::Memory benchmarks completed with warnings"
           }

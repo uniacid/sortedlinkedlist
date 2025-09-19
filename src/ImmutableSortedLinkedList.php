@@ -17,8 +17,6 @@ use SortedLinkedList\Comparator\ComparatorInterface;
  */
 class ImmutableSortedLinkedList extends SortedLinkedList
 {
-    /** @var int Maximum number of elements allowed in bulk operations */
-    protected const MAX_BULK_SIZE = 100000;
     /**
      * Constructor for creating new instances.
      *
@@ -72,34 +70,48 @@ class ImmutableSortedLinkedList extends SortedLinkedList
      */
     public function withAdd(mixed $value): static
     {
-        // For simplicity and correctness, clone the entire structure
-        // This ensures immutability without complex structural sharing
-        $newList = static::createWithStructure($this->comparator, null, 0);
+        // Use structural sharing for efficiency
+        // Only create new nodes where necessary
 
-        // Get all values and add the new one
-        $values = $this->toArray();
-        $values[] = $value;
-
-        // Sort using comparator
-        usort($values, [$this, 'compare']);
-
-        // Build new list structure
-        // $values is guaranteed to have at least one element (the added value)
-        $firstValue = array_shift($values);
-        /** @var Node<T> $newHead */
-        $newHead = new Node($firstValue);
-        $current = $newHead;
-        $size = 1;
-
-        foreach ($values as $val) {
-            /** @var Node<T> $newNode */
-            $newNode = new Node($val);
-            $current->setNext($newNode);
-            $current = $newNode;
-            $size++;
+        if ($this->head === null) {
+            // Empty list - create single node
+            $newHead = new Node($value);
+            return static::createWithStructure($this->comparator, $newHead, 1);
         }
 
-        return static::createWithStructure($this->comparator, $newHead, $size);
+        // If value should be first, reuse rest of list
+        if ($this->compare($value, $this->head->getValue()) <= 0) {
+            $newHead = new Node($value);
+            $newHead->setNext($this->head);
+            return static::createWithStructure($this->comparator, $newHead, $this->size + 1);
+        }
+
+        // Find insertion point and clone path to that point
+        $newHead = new Node($this->head->getValue());
+        $newCurrent = $newHead;
+        $oldCurrent = $this->head;
+
+        while ($oldCurrent->getNext() !== null) {
+            if ($this->compare($value, $oldCurrent->getNext()->getValue()) <= 0) {
+                // Found insertion point
+                $newNode = new Node($value);
+                $newNode->setNext($oldCurrent->getNext());
+                $newCurrent->setNext($newNode);
+                return static::createWithStructure($this->comparator, $newHead, $this->size + 1);
+            }
+
+            // Clone this node
+            $nextNode = new Node($oldCurrent->getNext()->getValue());
+            $newCurrent->setNext($nextNode);
+            $newCurrent = $nextNode;
+            $oldCurrent = $oldCurrent->getNext();
+        }
+
+        // Add at end
+        $newNode = new Node($value);
+        $newCurrent->setNext($newNode);
+
+        return static::createWithStructure($this->comparator, $newHead, $this->size + 1);
     }
 
     /**
@@ -233,11 +245,7 @@ class ImmutableSortedLinkedList extends SortedLinkedList
 
         // Create a set for O(1) lookups
         $valuesToRemove = array_flip(array_map(
-            fn($v) => is_scalar($v)
-                ? (string)$v
-                : (is_object($v)
-                    ? spl_object_id($v)
-                    : json_encode($v, JSON_THROW_ON_ERROR)),
+            fn($v) => $this->getValueKey($v),
             $values
         ));
 
@@ -250,11 +258,7 @@ class ImmutableSortedLinkedList extends SortedLinkedList
         $current = $this->head;
         while ($current !== null) {
             $value = $current->getValue();
-            $currentValueKey = is_scalar($value)
-                ? (string)$value
-                : (is_object($value)
-                    ? spl_object_id($value)
-                    : json_encode($value, JSON_THROW_ON_ERROR));
+            $currentValueKey = $this->getValueKey($value);
 
             if (!isset($valuesToRemove[$currentValueKey])) {
                 // Keep this node
@@ -302,11 +306,7 @@ class ImmutableSortedLinkedList extends SortedLinkedList
 
         // Create a set for O(1) lookups
         $valuesToRetain = array_flip(array_map(
-            fn($v) => is_scalar($v)
-                ? (string)$v
-                : (is_object($v)
-                    ? spl_object_id($v)
-                    : json_encode($v, JSON_THROW_ON_ERROR)),
+            fn($v) => $this->getValueKey($v),
             $values
         ));
 
@@ -319,11 +319,7 @@ class ImmutableSortedLinkedList extends SortedLinkedList
         $current = $this->head;
         while ($current !== null) {
             $value = $current->getValue();
-            $currentValueKey = is_scalar($value)
-                ? (string)$value
-                : (is_object($value)
-                    ? spl_object_id($value)
-                    : json_encode($value, JSON_THROW_ON_ERROR));
+            $currentValueKey = $this->getValueKey($value);
 
             if (isset($valuesToRetain[$currentValueKey])) {
                 // Keep this node

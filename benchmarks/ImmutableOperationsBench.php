@@ -21,7 +21,7 @@ use SortedLinkedList\Comparator\ReverseComparator;
  * @OutputTimeUnit("microseconds", precision=3)
  * @Groups({"immutable", "comparison"})
  */
-class ImmutableOperationsBench
+class ImmutableOperationsBench extends AbstractBenchmark
 {
     private ImmutableSortedLinkedList $immutableList;
     private IntegerSortedLinkedList $mutableList;
@@ -61,12 +61,7 @@ class ImmutableOperationsBench
      */
     public function provideDataSizes(): array
     {
-        return [
-            'small' => ['size' => 100],
-            'medium' => ['size' => 500],
-            'large' => ['size' => 1000],
-            'xlarge' => ['size' => 5000],
-        ];
+        return parent::provideDataSizes();
     }
 
     /**

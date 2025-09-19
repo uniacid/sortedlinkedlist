@@ -18,6 +18,10 @@
     <testsuites>
         <testsuite name="SortedLinkedList Test Suite">
             <directory>tests</directory>
+            <exclude>tests/Performance</exclude>
+        </testsuite>
+        <testsuite name="Performance">
+            <directory>tests/Performance</directory>
         </testsuite>
     </testsuites>
 

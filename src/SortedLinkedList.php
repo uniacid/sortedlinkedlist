@@ -36,6 +36,16 @@ abstract class SortedLinkedList implements \Iterator, \ArrayAccess, \Countable
     protected const MAX_BULK_SIZE = 100000;
 
     /**
+     * Maximum total elements allowed in the list.
+     */
+    protected const MAX_SIZE = 1000000;
+
+    /**
+     * Maximum depth for JSON encoding to prevent DoS attacks.
+     */
+    protected const MAX_JSON_DEPTH = 10;
+
+    /**
      * The head node of the linked list.
      *
      * @var Node<T>|null
@@ -144,6 +154,13 @@ abstract class SortedLinkedList implements \Iterator, \ArrayAccess, \Countable
      */
     public function add(mixed $value): void
     {
+        // Check maximum size limit
+        if ($this->size >= self::MAX_SIZE) {
+            throw new \OverflowException(
+                sprintf('List has reached maximum size of %d elements', self::MAX_SIZE)
+            );
+        }
+
         $newNode = new Node($value);
 
         // If list is empty or value should be first
@@ -332,6 +349,71 @@ abstract class SortedLinkedList implements \Iterator, \ArrayAccess, \Countable
         $this->indexCache = null;
     }
 
+    /**
+     * Get a unique key for a value, safe from security vulnerabilities.
+     *
+     * @param mixed $value The value to get a key for
+     * @return string A unique string key for the value
+     */
+    protected function getValueKey(mixed $value): string
+    {
+        if (is_scalar($value)) {
+            return (string)$value;
+        }
+
+        if (is_object($value)) {
+            return (string)spl_object_id($value);
+        }
+
+        // For arrays, use a hash instead of JSON encoding
+        // This prevents memory exhaustion attacks
+        if (is_array($value)) {
+            // Create a hash of the array structure
+            // Limited depth traversal to prevent DoS
+            return 'array_' . md5(serialize($this->limitArrayDepth($value, 3)));
+        }
+
+        // For resources and other types
+        if (is_resource($value)) {
+            return 'resource_' . get_resource_id($value);
+        }
+
+        // Fallback for unknown types
+        return 'unknown_' . md5(gettype($value));
+    }
+
+    /**
+     * Limit array depth for safe serialization.
+     *
+     * @param array<mixed> $array The array to limit
+     * @param int $maxDepth Maximum depth allowed
+     * @param int $currentDepth Current recursion depth
+     * @return array<mixed> Array with limited depth
+     */
+    private function limitArrayDepth(array $array, int $maxDepth, int $currentDepth = 0): array
+    {
+        if ($currentDepth >= $maxDepth) {
+            return ['__truncated__' => true];
+        }
+
+        $result = [];
+        $count = 0;
+        foreach ($array as $key => $value) {
+            if ($count++ > 100) {  // Limit array size at each level
+                $result['__truncated__'] = true;
+                break;
+            }
+
+            if (is_array($value)) {
+                $result[$key] = $this->limitArrayDepth($value, $maxDepth, $currentDepth + 1);
+            } else {
+                $result[$key] = $value;
+            }
+        }
+
+        return $result;
+    }
+
     // Iterator interface methods
 
     /**
@@ -440,7 +522,7 @@ abstract class SortedLinkedList implements \Iterator, \ArrayAccess, \Countable
     public function seek(int $position): void
     {
         if ($position < 0 || $position >= $this->size) {
-            throw new \OutOfBoundsException("Position $position is out of bounds");
+            throw new \OutOfBoundsException('Position is out of bounds');
         }
 
         $this->position = $position;
@@ -496,13 +578,12 @@ abstract class SortedLinkedList implements \Iterator, \ArrayAccess, \Countable
     public function offsetGet(mixed $offset): mixed
     {
         if (!is_int($offset) || $offset < 0 || $offset >= $this->size) {
-            $offsetStr = is_scalar($offset) ? (string)$offset : 'invalid';
-            throw new \OutOfBoundsException("Offset " . $offsetStr . " is out of bounds");
+            throw new \OutOfBoundsException('Array offset is out of bounds');
         }
 
         $this->buildIndexCache();
         if ($this->indexCache === null) {
-            throw new \OutOfBoundsException("Cache build failed");
+            throw new \RuntimeException('Internal cache error');
         }
         return $this->indexCache[$offset];
     }
@@ -647,13 +728,9 @@ abstract class SortedLinkedList implements \Iterator, \ArrayAccess, \Countable
             throw new \InvalidArgumentException('Bulk operation exceeds maximum size of ' . self::MAX_BULK_SIZE);
         }
 
-        // Create a set for O(1) lookups - use spl_object_id for objects
+        // Create a set for O(1) lookups
         $valuesToRemove = array_flip(array_map(
-            fn($v) => is_scalar($v)
-                ? (string)$v
-                : (is_object($v)
-                    ? spl_object_id($v)
-                    : json_encode($v, JSON_THROW_ON_ERROR)),
+            fn($v) => $this->getValueKey($v),
             $values
         ));
 
@@ -661,12 +738,7 @@ abstract class SortedLinkedList implements \Iterator, \ArrayAccess, \Countable
         $previous = null;
 
         while ($current !== null) {
-            $value = $current->getValue();
-            $currentValueKey = is_scalar($value)
-                ? (string)$value
-                : (is_object($value)
-                    ? spl_object_id($value)
-                    : json_encode($value, JSON_THROW_ON_ERROR));
+            $currentValueKey = $this->getValueKey($current->getValue());
 
             if (isset($valuesToRemove[$currentValueKey])) {
                 // Remove this node
@@ -677,7 +749,6 @@ abstract class SortedLinkedList implements \Iterator, \ArrayAccess, \Countable
                     $previous->setNext($current->getNext());
                 }
                 $this->size--;
-                $this->invalidateCache();
 
                 // Don't update previous, as we removed current
                 $current = $previous === null ? $this->head : $previous->getNext();
@@ -687,6 +758,9 @@ abstract class SortedLinkedList implements \Iterator, \ArrayAccess, \Countable
                 $current = $current->getNext();
             }
         }
+
+        // Invalidate cache once after all removals
+        $this->invalidateCache();
     }
 
     /**
@@ -710,13 +784,9 @@ abstract class SortedLinkedList implements \Iterator, \ArrayAccess, \Countable
             throw new \InvalidArgumentException('Bulk operation exceeds maximum size of ' . self::MAX_BULK_SIZE);
         }
 
-        // Create a set for O(1) lookups - use spl_object_id for objects
+        // Create a set for O(1) lookups
         $valuesToRetain = array_flip(array_map(
-            fn($v) => is_scalar($v)
-                ? (string)$v
-                : (is_object($v)
-                    ? spl_object_id($v)
-                    : json_encode($v, JSON_THROW_ON_ERROR)),
+            fn($v) => $this->getValueKey($v),
             $values
         ));
 
@@ -724,12 +794,7 @@ abstract class SortedLinkedList implements \Iterator, \ArrayAccess, \Countable
         $previous = null;
 
         while ($current !== null) {
-            $value = $current->getValue();
-            $currentValueKey = is_scalar($value)
-                ? (string)$value
-                : (is_object($value)
-                    ? spl_object_id($value)
-                    : json_encode($value, JSON_THROW_ON_ERROR));
+            $currentValueKey = $this->getValueKey($current->getValue());
 
             if (!isset($valuesToRetain[$currentValueKey])) {
                 // Remove this node
@@ -740,7 +805,6 @@ abstract class SortedLinkedList implements \Iterator, \ArrayAccess, \Countable
                     $previous->setNext($current->getNext());
                 }
                 $this->size--;
-                $this->invalidateCache();
 
                 // Don't update previous, as we removed current
                 $current = $previous === null ? $this->head : $previous->getNext();
@@ -750,6 +814,9 @@ abstract class SortedLinkedList implements \Iterator, \ArrayAccess, \Countable
                 $current = $current->getNext();
             }
         }
+
+        // Invalidate cache once after all operations
+        $this->invalidateCache();
     }
 
     /**
@@ -792,13 +859,14 @@ abstract class SortedLinkedList implements \Iterator, \ArrayAccess, \Countable
      * Create a new sorted linked list from an array.
      *
      * @param array<T> $values The values to add
+     * @param ComparatorInterface<T>|null $comparator Optional custom comparator
      * @return static
      */
-    public static function fromArray(array $values): static
+    public static function fromArray(array $values, ?ComparatorInterface $comparator = null): static
     {
         /** @var static $list */
         /** @phpstan-ignore-next-line */
-        $list = new static();
+        $list = new static($comparator);
         $list->addAll($values);
         return $list;
     }

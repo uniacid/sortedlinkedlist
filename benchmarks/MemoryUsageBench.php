@@ -23,7 +23,7 @@ use SortedLinkedList\Comparator\NumericComparator;
  * @OutputMode("throughput")
  * @Groups({"memory", "comparison"})
  */
-class MemoryUsageBench
+class MemoryUsageBench extends AbstractBenchmark
 {
     private array $integerData = [];
     private array $stringData = [];
@@ -50,12 +50,7 @@ class MemoryUsageBench
      */
     public function provideDataSizes(): array
     {
-        return [
-            'small' => ['size' => 100],
-            'medium' => ['size' => 1000],
-            'large' => ['size' => 10000],
-            'xlarge' => ['size' => 50000],
-        ];
+        return $this->provideMemoryDataSizes();
     }
 
     /**

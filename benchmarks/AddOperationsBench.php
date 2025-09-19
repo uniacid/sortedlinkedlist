@@ -20,7 +20,7 @@ use SortedLinkedList\FloatSortedLinkedList;
  * @OutputTimeUnit("microseconds", precision=3)
  * @Groups({"add", "comparison"})
  */
-class AddOperationsBench
+class AddOperationsBench extends AbstractBenchmark
 {
     private array $integerData = [];
     private array $stringData = [];
@@ -43,12 +43,7 @@ class AddOperationsBench
      */
     public function provideDataSizes(): array
     {
-        return [
-            'small' => ['size' => 100],
-            'medium' => ['size' => 500],
-            'large' => ['size' => 1000],
-            'xlarge' => ['size' => 5000],
-        ];
+        return parent::provideDataSizes();
     }
 
     /**
