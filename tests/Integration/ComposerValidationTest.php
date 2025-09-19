@@ -94,20 +94,36 @@ class ComposerValidationTest extends TestCase
     {
         $this->assertArrayHasKey('autoload', $this->composerData);
         $this->assertIsArray($this->composerData['autoload']);
-        $this->assertArrayHasKey('psr-4', $this->composerData['autoload']);
-        $this->assertIsArray($this->composerData['autoload']['psr-4']);
-        $this->assertArrayHasKey('SortedLinkedList\\', $this->composerData['autoload']['psr-4']);
-        $this->assertEquals('src/', $this->composerData['autoload']['psr-4']['SortedLinkedList\\']);
+
+        /** @var array<string, mixed> $autoload */
+        $autoload = $this->composerData['autoload'];
+
+        $this->assertArrayHasKey('psr-4', $autoload);
+        $this->assertIsArray($autoload['psr-4']);
+
+        /** @var array<string, string> $psr4 */
+        $psr4 = $autoload['psr-4'];
+
+        $this->assertArrayHasKey('SortedLinkedList\\', $psr4);
+        $this->assertEquals('src/', $psr4['SortedLinkedList\\']);
     }
 
     public function testAutoloadDevConfiguration(): void
     {
         $this->assertArrayHasKey('autoload-dev', $this->composerData);
         $this->assertIsArray($this->composerData['autoload-dev']);
-        $this->assertArrayHasKey('psr-4', $this->composerData['autoload-dev']);
-        $this->assertIsArray($this->composerData['autoload-dev']['psr-4']);
-        $this->assertArrayHasKey('SortedLinkedList\\Tests\\', $this->composerData['autoload-dev']['psr-4']);
-        $this->assertEquals('tests/', $this->composerData['autoload-dev']['psr-4']['SortedLinkedList\\Tests\\']);
+
+        /** @var array<string, mixed> $autoloadDev */
+        $autoloadDev = $this->composerData['autoload-dev'];
+
+        $this->assertArrayHasKey('psr-4', $autoloadDev);
+        $this->assertIsArray($autoloadDev['psr-4']);
+
+        /** @var array<string, string> $psr4Dev */
+        $psr4Dev = $autoloadDev['psr-4'];
+
+        $this->assertArrayHasKey('SortedLinkedList\\Tests\\', $psr4Dev);
+        $this->assertEquals('tests/', $psr4Dev['SortedLinkedList\\Tests\\']);
     }
 
     public function testPhpVersionRequirement(): void
