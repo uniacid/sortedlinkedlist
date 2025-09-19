@@ -76,32 +76,4 @@ class Node
     {
         $this->next = $next;
     }
-
-    /**
-     * Compares this node's value with another value for sorting purposes.
-     *
-     * @param T $other The value to compare against
-     * @return int Negative if this value is less than other,
-     *             positive if greater, zero if equal
-     */
-    public function compareTo(mixed $other): int
-    {
-        // Handle numeric comparison (integers and floats)
-        if (is_numeric($this->value) && is_numeric($other)) {
-            return $this->value <=> $other;
-        }
-
-        // Handle string comparison
-        if (is_string($this->value) && is_string($other)) {
-            return strcmp($this->value, $other);
-        }
-
-        // Handle boolean comparison
-        if (is_bool($this->value) && is_bool($other)) {
-            return ((int) $this->value) <=> ((int) $other);
-        }
-
-        // For other types, use spaceship operator
-        return $this->value <=> $other;
-    }
 }

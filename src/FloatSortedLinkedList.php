@@ -20,6 +20,7 @@ class FloatSortedLinkedList extends SortedLinkedList
 {
     /**
      * The epsilon value for float comparison to handle precision issues.
+     * This is used as a relative epsilon that scales with the magnitude of values.
      */
     private const EPSILON = 1e-10;
 
@@ -63,11 +64,23 @@ class FloatSortedLinkedList extends SortedLinkedList
             return $b > 0 ? -1 : 1;
         }
 
-        // Use epsilon comparison for better float precision handling
+        // Use relative epsilon comparison for better float precision handling
+        // This scales with the magnitude of the values being compared
         $diff = $a - $b;
+        $absA = abs($a);
+        $absB = abs($b);
+        $maxAbs = max($absA, $absB);
 
-        if (abs($diff) < self::EPSILON) {
-            return 0;
+        // For numbers close to zero, use absolute epsilon
+        // For larger numbers, use relative epsilon
+        if ($maxAbs < 1.0) {
+            if (abs($diff) < self::EPSILON) {
+                return 0;
+            }
+        } else {
+            if (abs($diff) <= $maxAbs * self::EPSILON) {
+                return 0;
+            }
         }
 
         return $diff > 0 ? 1 : -1;

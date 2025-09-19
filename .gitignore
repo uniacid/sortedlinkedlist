@@ -1,3 +1,6 @@
+.agent-os/
+.claude/
+.cursor/
 /vendor/
 /coverage/
 /.phpunit.cache/

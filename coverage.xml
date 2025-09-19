@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1758145268">
+  <project timestamp="1758145268">
+    <file name="/Users/uniacid/Sites/SyncDev/SortedLinkedList/src/Node.php">
+      <class name="SortedLinkedList\Node" namespace="global">
+        <metrics complexity="12" methods="6" coveredmethods="5" conditionals="0" coveredconditionals="0" statements="13" coveredstatements="10" elements="19" coveredelements="15"/>
+      </class>
+      <line num="34" type="method" name="__construct" visibility="public" complexity="1" crap="1" count="16"/>
+      <line num="36" type="stmt" count="16"/>
+      <line num="37" type="stmt" count="16"/>
+      <line num="45" type="method" name="getValue" visibility="public" complexity="1" crap="1" count="12"/>
+      <line num="47" type="stmt" count="12"/>
+      <line num="55" type="method" name="setValue" visibility="public" complexity="1" crap="1" count="2"/>
+      <line num="57" type="stmt" count="2"/>
+      <line num="65" type="method" name="getNext" visibility="public" complexity="1" crap="1" count="12"/>
+      <line num="67" type="stmt" count="12"/>
+      <line num="75" type="method" name="setNext" visibility="public" complexity="1" crap="1" count="9"/>
+      <line num="77" type="stmt" count="9"/>
+      <line num="87" type="method" name="compareTo" visibility="public" complexity="7" crap="10.86" count="3"/>
+      <line num="90" type="stmt" count="3"/>
+      <line num="91" type="stmt" count="2"/>
+      <line num="95" type="stmt" count="1"/>
+      <line num="96" type="stmt" count="1"/>
+      <line num="100" type="stmt" count="0"/>
+      <line num="101" type="stmt" count="0"/>
+      <line num="105" type="stmt" count="0"/>
+      <metrics loc="107" ncloc="55" classes="1" methods="6" coveredmethods="5" conditionals="0" coveredconditionals="0" statements="13" coveredstatements="10" elements="19" coveredelements="15"/>
+    </file>
+    <metrics files="1" loc="107" ncloc="55" classes="1" methods="6" coveredmethods="5" conditionals="0" coveredconditionals="0" statements="13" coveredstatements="10" elements="19" coveredelements="15"/>
+  </project>
+</coverage>

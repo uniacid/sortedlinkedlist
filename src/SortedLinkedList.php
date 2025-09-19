@@ -13,12 +13,28 @@ use SortedLinkedList\Comparator\ComparatorInterface;
  * in sorted order based on the comparison logic defined by concrete subclasses
  * or a provided comparator.
  *
+ * ## Limitations
+ * - **Thread Safety**: This implementation is NOT thread-safe. External synchronization
+ *   is required for concurrent access.
+ * - **Bulk Operations**: Limited to 100,000 elements per operation to prevent DoS attacks.
+ * - **Object Comparison**: Uses spl_object_id() for non-scalar values, which only checks
+ *   object identity, not equality.
+ * - **Memory Usage**: Each node has overhead for storing references, making this less
+ *   memory-efficient than arrays for small datasets.
+ * - **Performance**: O(n) insertion/deletion. Consider using arrays with binary search
+ *   for mostly-read workloads.
+ *
  * @template T
  * @implements \Iterator<int, T>
  * @implements \ArrayAccess<int, T>
  */
 abstract class SortedLinkedList implements \Iterator, \ArrayAccess, \Countable
 {
+    /**
+     * Maximum size for bulk operations to prevent DoS attacks.
+     */
+    protected const MAX_BULK_SIZE = 100000;
+
     /**
      * The head node of the linked list.
      *
@@ -552,6 +568,11 @@ abstract class SortedLinkedList implements \Iterator, \ArrayAccess, \Countable
             return;
         }
 
+        // Check for maximum size to prevent DoS
+        if (count($values) > self::MAX_BULK_SIZE) {
+            throw new \InvalidArgumentException('Bulk operation exceeds maximum size of ' . self::MAX_BULK_SIZE);
+        }
+
         // Optimization: If list is empty, sort array and build list directly
         if ($this->head === null && count($values) > 1) {
             // Sort the array using the comparator
@@ -576,9 +597,33 @@ abstract class SortedLinkedList implements \Iterator, \ArrayAccess, \Countable
             $this->invalidateCache();
         } else {
             // Regular insertion for non-empty lists
+            // We'll manually add nodes to avoid multiple cache invalidations
             foreach ($values as $value) {
-                $this->add($value);
+                $newNode = new Node($value);
+
+                // If value should be first
+                if ($this->head === null || $this->compare($value, $this->head->getValue()) <= 0) {
+                    $newNode->setNext($this->head);
+                    $this->head = $newNode;
+                    $this->size++;
+                } else {
+                    // Find insertion point
+                    $current = $this->head;
+                    while (
+                        $current->getNext() !== null &&
+                        $this->compare($value, $current->getNext()->getValue()) > 0
+                    ) {
+                        $current = $current->getNext();
+                    }
+
+                    // Insert the new node
+                    $newNode->setNext($current->getNext());
+                    $current->setNext($newNode);
+                    $this->size++;
+                }
             }
+            // Invalidate cache only once after all additions
+            $this->invalidateCache();
         }
     }
 
@@ -597,9 +642,14 @@ abstract class SortedLinkedList implements \Iterator, \ArrayAccess, \Countable
             return;
         }
 
-        // Create a set for O(1) lookups
+        // Check for maximum size to prevent DoS
+        if (count($values) > self::MAX_BULK_SIZE) {
+            throw new \InvalidArgumentException('Bulk operation exceeds maximum size of ' . self::MAX_BULK_SIZE);
+        }
+
+        // Create a set for O(1) lookups - use spl_object_id for objects
         $valuesToRemove = array_flip(array_map(
-            fn($v) => is_scalar($v) ? (string)$v : serialize($v),
+            fn($v) => is_scalar($v) ? (string)$v : (is_object($v) ? (string)spl_object_id($v) : serialize($v)),
             $values
         ));
 
@@ -607,9 +657,12 @@ abstract class SortedLinkedList implements \Iterator, \ArrayAccess, \Countable
         $previous = null;
 
         while ($current !== null) {
-            $currentValueKey = is_scalar($current->getValue())
-                ? (string)$current->getValue()
-                : serialize($current->getValue());
+            $value = $current->getValue();
+            $currentValueKey = is_scalar($value)
+                ? (string)$value
+                : (is_object($value)
+                    ? (string)spl_object_id($value)
+                    : serialize($value));
 
             if (isset($valuesToRemove[$currentValueKey])) {
                 // Remove this node
@@ -648,9 +701,14 @@ abstract class SortedLinkedList implements \Iterator, \ArrayAccess, \Countable
             return;
         }
 
-        // Create a set for O(1) lookups
+        // Check for maximum size to prevent DoS
+        if (count($values) > self::MAX_BULK_SIZE) {
+            throw new \InvalidArgumentException('Bulk operation exceeds maximum size of ' . self::MAX_BULK_SIZE);
+        }
+
+        // Create a set for O(1) lookups - use spl_object_id for objects
         $valuesToRetain = array_flip(array_map(
-            fn($v) => is_scalar($v) ? (string)$v : serialize($v),
+            fn($v) => is_scalar($v) ? (string)$v : (is_object($v) ? (string)spl_object_id($v) : serialize($v)),
             $values
         ));
 
@@ -658,9 +716,12 @@ abstract class SortedLinkedList implements \Iterator, \ArrayAccess, \Countable
         $previous = null;
 
         while ($current !== null) {
-            $currentValueKey = is_scalar($current->getValue())
-                ? (string)$current->getValue()
-                : serialize($current->getValue());
+            $value = $current->getValue();
+            $currentValueKey = is_scalar($value)
+                ? (string)$value
+                : (is_object($value)
+                    ? (string)spl_object_id($value)
+                    : serialize($value));
 
             if (!isset($valuesToRetain[$currentValueKey])) {
                 // Remove this node

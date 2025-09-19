@@ -17,6 +17,8 @@ use SortedLinkedList\Comparator\ComparatorInterface;
  */
 class ImmutableSortedLinkedList extends SortedLinkedList
 {
+    /** @var int Maximum number of elements allowed in bulk operations */
+    protected const MAX_BULK_SIZE = 100000;
     /**
      * Constructor for creating new instances.
      *
@@ -171,6 +173,12 @@ class ImmutableSortedLinkedList extends SortedLinkedList
             $values = iterator_to_array($values);
         }
 
+        if (count($values) > self::MAX_BULK_SIZE) {
+            throw new \InvalidArgumentException(
+                sprintf('Cannot add more than %d elements at once', self::MAX_BULK_SIZE)
+            );
+        }
+
         if (count($values) === 0) {
             return static::createWithStructure($this->comparator, $this->head, $this->size);
         }
@@ -213,13 +221,19 @@ class ImmutableSortedLinkedList extends SortedLinkedList
             $values = iterator_to_array($values);
         }
 
+        if (count($values) > self::MAX_BULK_SIZE) {
+            throw new \InvalidArgumentException(
+                sprintf('Cannot remove more than %d elements at once', self::MAX_BULK_SIZE)
+            );
+        }
+
         if (count($values) === 0) {
             return static::createWithStructure($this->comparator, $this->head, $this->size);
         }
 
         // Create a set for O(1) lookups
         $valuesToRemove = array_flip(array_map(
-            fn($v) => is_scalar($v) ? (string)$v : serialize($v),
+            fn($v) => is_scalar($v) ? (string)$v : (is_object($v) ? (string)spl_object_id($v) : serialize($v)),
             $values
         ));
 
@@ -231,9 +245,12 @@ class ImmutableSortedLinkedList extends SortedLinkedList
 
         $current = $this->head;
         while ($current !== null) {
-            $currentValueKey = is_scalar($current->getValue())
-                ? (string)$current->getValue()
-                : serialize($current->getValue());
+            $value = $current->getValue();
+            $currentValueKey = is_scalar($value)
+                ? (string)$value
+                : (is_object($value)
+                    ? (string)spl_object_id($value)
+                    : serialize($value));
 
             if (!isset($valuesToRemove[$currentValueKey])) {
                 // Keep this node
@@ -269,13 +286,19 @@ class ImmutableSortedLinkedList extends SortedLinkedList
             $values = iterator_to_array($values);
         }
 
+        if (count($values) > self::MAX_BULK_SIZE) {
+            throw new \InvalidArgumentException(
+                sprintf('Cannot retain more than %d elements at once', self::MAX_BULK_SIZE)
+            );
+        }
+
         if (count($values) === 0) {
             return static::createWithStructure($this->comparator, null, 0);
         }
 
         // Create a set for O(1) lookups
         $valuesToRetain = array_flip(array_map(
-            fn($v) => is_scalar($v) ? (string)$v : serialize($v),
+            fn($v) => is_scalar($v) ? (string)$v : (is_object($v) ? (string)spl_object_id($v) : serialize($v)),
             $values
         ));
 
@@ -287,9 +310,12 @@ class ImmutableSortedLinkedList extends SortedLinkedList
 
         $current = $this->head;
         while ($current !== null) {
-            $currentValueKey = is_scalar($current->getValue())
-                ? (string)$current->getValue()
-                : serialize($current->getValue());
+            $value = $current->getValue();
+            $currentValueKey = is_scalar($value)
+                ? (string)$value
+                : (is_object($value)
+                    ? (string)spl_object_id($value)
+                    : serialize($value));
 
             if (isset($valuesToRetain[$currentValueKey])) {
                 // Keep this node
