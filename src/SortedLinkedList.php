@@ -649,7 +649,11 @@ abstract class SortedLinkedList implements \Iterator, \ArrayAccess, \Countable
 
         // Create a set for O(1) lookups - use spl_object_id for objects
         $valuesToRemove = array_flip(array_map(
-            fn($v) => is_scalar($v) ? (string)$v : (is_object($v) ? (string)spl_object_id($v) : serialize($v)),
+            fn($v) => is_scalar($v)
+                ? (string)$v
+                : (is_object($v)
+                    ? (string)spl_object_id($v)
+                    : (string)json_encode($v, JSON_THROW_ON_ERROR)),
             $values
         ));
 
@@ -662,7 +666,7 @@ abstract class SortedLinkedList implements \Iterator, \ArrayAccess, \Countable
                 ? (string)$value
                 : (is_object($value)
                     ? (string)spl_object_id($value)
-                    : serialize($value));
+                    : json_encode($value, JSON_THROW_ON_ERROR));
 
             if (isset($valuesToRemove[$currentValueKey])) {
                 // Remove this node
@@ -708,7 +712,11 @@ abstract class SortedLinkedList implements \Iterator, \ArrayAccess, \Countable
 
         // Create a set for O(1) lookups - use spl_object_id for objects
         $valuesToRetain = array_flip(array_map(
-            fn($v) => is_scalar($v) ? (string)$v : (is_object($v) ? (string)spl_object_id($v) : serialize($v)),
+            fn($v) => is_scalar($v)
+                ? (string)$v
+                : (is_object($v)
+                    ? (string)spl_object_id($v)
+                    : (string)json_encode($v, JSON_THROW_ON_ERROR)),
             $values
         ));
 
@@ -721,7 +729,7 @@ abstract class SortedLinkedList implements \Iterator, \ArrayAccess, \Countable
                 ? (string)$value
                 : (is_object($value)
                     ? (string)spl_object_id($value)
-                    : serialize($value));
+                    : json_encode($value, JSON_THROW_ON_ERROR));
 
             if (!isset($valuesToRetain[$currentValueKey])) {
                 // Remove this node

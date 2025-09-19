@@ -233,7 +233,11 @@ class ImmutableSortedLinkedList extends SortedLinkedList
 
         // Create a set for O(1) lookups
         $valuesToRemove = array_flip(array_map(
-            fn($v) => is_scalar($v) ? (string)$v : (is_object($v) ? (string)spl_object_id($v) : serialize($v)),
+            fn($v) => is_scalar($v)
+                ? (string)$v
+                : (is_object($v)
+                    ? (string)spl_object_id($v)
+                    : (string)json_encode($v, JSON_THROW_ON_ERROR)),
             $values
         ));
 
@@ -250,7 +254,7 @@ class ImmutableSortedLinkedList extends SortedLinkedList
                 ? (string)$value
                 : (is_object($value)
                     ? (string)spl_object_id($value)
-                    : serialize($value));
+                    : json_encode($value, JSON_THROW_ON_ERROR));
 
             if (!isset($valuesToRemove[$currentValueKey])) {
                 // Keep this node
@@ -298,7 +302,11 @@ class ImmutableSortedLinkedList extends SortedLinkedList
 
         // Create a set for O(1) lookups
         $valuesToRetain = array_flip(array_map(
-            fn($v) => is_scalar($v) ? (string)$v : (is_object($v) ? (string)spl_object_id($v) : serialize($v)),
+            fn($v) => is_scalar($v)
+                ? (string)$v
+                : (is_object($v)
+                    ? (string)spl_object_id($v)
+                    : (string)json_encode($v, JSON_THROW_ON_ERROR)),
             $values
         ));
 
@@ -315,7 +323,7 @@ class ImmutableSortedLinkedList extends SortedLinkedList
                 ? (string)$value
                 : (is_object($value)
                     ? (string)spl_object_id($value)
-                    : serialize($value));
+                    : json_encode($value, JSON_THROW_ON_ERROR));
 
             if (isset($valuesToRetain[$currentValueKey])) {
                 // Keep this node

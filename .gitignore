@@ -1,8 +1,6 @@
-.agent-os/
-.claude/
-.cursor/
 /vendor/
 /coverage/
+coverage.xml
 /.phpunit.cache/
 /.phpunit.result.cache
 composer.lock

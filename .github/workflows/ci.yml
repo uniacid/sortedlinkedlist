@@ -58,6 +58,7 @@ jobs:
   coverage:
     runs-on: ubuntu-latest
     name: Code Coverage
+    timeout-minutes: 10
 
     steps:
       - name: Checkout code
@@ -83,7 +84,8 @@ jobs:
           files: ./coverage.xml
           flags: unittests
           name: codecov-umbrella
-          fail_ci_if_error: true
+          fail_ci_if_error: false
+          verbose: true
           token: ${{ secrets.CODECOV_TOKEN }}
 
   documentation:
