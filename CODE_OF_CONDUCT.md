@@ -53,7 +53,22 @@ This Code of Conduct applies both within project spaces and in public spaces whe
 
 ## Enforcement
 
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by contacting the project team through GitHub issues or by reaching out to project maintainers directly. All complaints will be reviewed and investigated and will result in a response that is deemed necessary and appropriate to the circumstances.
+Instances of abusive, harassing, or otherwise unacceptable behavior may be reported using any of the following methods:
+
+* **GitHub Issues**: Open a private security advisory in the repository
+* **Email**: Contact project maintainers directly (see MAINTAINERS.md)
+* **Discussion Forum**: Use the private reporting feature in GitHub Discussions
+
+All complaints will be reviewed and investigated promptly and fairly. The project team is obligated to maintain confidentiality with regard to the reporter of an incident. We will not publicly discuss reports or actions taken unless absolutely necessary for community safety.
+
+### Reporting Guidelines
+
+When reporting an incident, please provide:
+* Your contact information (for follow-up)
+* Names (real, nicknames, or pseudonyms) of individuals involved
+* Description of the incident, including relevant links/screenshots
+* Date and time of the incident
+* Any additional context or information that may be helpful
 
 Project maintainers are obligated to maintain confidentiality with regard to the reporter of an incident. Further details of specific enforcement policies may be posted separately.
 

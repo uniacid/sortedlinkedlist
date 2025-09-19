@@ -1,0 +1,125 @@
+# GitHub Labels Configuration
+# This file defines the labels used in the SortedLinkedList project
+# Can be synced using GitHub Actions or label sync tools
+
+# Type Labels
+- name: bug
+  color: d73a4a
+  description: Something isn't working
+
+- name: feature
+  color: 0075ca
+  description: New feature or request
+
+- name: enhancement
+  color: a2eeef
+  description: Improvement to existing functionality
+
+- name: documentation
+  color: 0052cc
+  description: Improvements or additions to documentation
+
+- name: question
+  color: d876e3
+  description: Further information is requested
+
+# Priority Labels
+- name: priority:critical
+  color: b60205
+  description: Critical priority - needs immediate attention
+
+- name: priority:high
+  color: d93f0b
+  description: High priority
+
+- name: priority:medium
+  color: fbca04
+  description: Medium priority
+
+- name: priority:low
+  color: c5def5
+  description: Low priority
+
+# Status Labels
+- name: needs-triage
+  color: ffffff
+  description: Needs to be triaged and prioritized
+
+- name: needs-review
+  color: fbca04
+  description: Needs code review
+
+- name: in-progress
+  color: 0e8a16
+  description: Work in progress
+
+- name: blocked
+  color: d93f0b
+  description: Blocked by another issue or external factor
+
+- name: ready-to-merge
+  color: 0e8a16
+  description: Ready to be merged
+
+# Area Labels
+- name: area:performance
+  color: 5319e7
+  description: Performance related
+
+- name: area:api
+  color: 5319e7
+  description: API related
+
+- name: area:tests
+  color: 5319e7
+  description: Testing related
+
+- name: area:ci-cd
+  color: 5319e7
+  description: CI/CD and automation
+
+- name: area:security
+  color: ee0701
+  description: Security related
+
+# Contribution Labels
+- name: good-first-issue
+  color: 7057ff
+  description: Good for newcomers
+
+- name: help-wanted
+  color: 008672
+  description: Extra attention is needed
+
+- name: hacktoberfest
+  color: ff6b00
+  description: Good for Hacktoberfest contributions
+
+# Other Labels
+- name: duplicate
+  color: cfd3d7
+  description: This issue or pull request already exists
+
+- name: invalid
+  color: e4e669
+  description: This doesn't seem right
+
+- name: wontfix
+  color: ffffff
+  description: This will not be worked on
+
+- name: breaking-change
+  color: d93f0b
+  description: Introduces breaking changes
+
+- name: dependencies
+  color: 0366d6
+  description: Pull requests that update a dependency file
+
+- name: community
+  color: f9d0c4
+  description: Community contribution
+
+- name: stale
+  color: fef2c0
+  description: Issue or PR has been inactive for a while
