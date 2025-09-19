@@ -16,10 +16,15 @@ class WorkflowValidationTest extends TestCase
         'benchmarks.yml'
     ];
 
+    private const OPTIONAL_WORKFLOWS = [
+        'benchmarks-parallel.yml',
+        'release.yml'
+    ];
+
     private const REQUIRED_JOBS = [
         'ci.yml' => ['test', 'coverage', 'documentation'],
         'deploy-docs.yml' => ['deploy'],
-        'benchmarks.yml' => ['benchmark']
+        'benchmarks.yml' => ['benchmark']  // benchmark-memory is optional
     ];
 
     private const REQUIRED_PHP_VERSIONS = ['8.1', '8.2', '8.3'];
@@ -34,10 +39,31 @@ class WorkflowValidationTest extends TestCase
 
     public function testWorkflowsAreValidYaml(): void
     {
+        // Test required workflows
         foreach (self::REQUIRED_WORKFLOWS as $workflow) {
             $path = self::WORKFLOW_DIR . '/' . $workflow;
             $content = file_get_contents($path);
 
+            $this->assertNotFalse($content, "Could not read workflow file {$workflow}");
+
+            try {
+                $parsed = Yaml::parse($content);
+                $this->assertIsArray($parsed, "Workflow {$workflow} is not valid YAML");
+                $this->assertArrayHasKey('name', $parsed, "Workflow {$workflow} missing name");
+                $this->assertArrayHasKey('jobs', $parsed, "Workflow {$workflow} missing jobs");
+            } catch (\Exception $e) {
+                $this->fail("Workflow {$workflow} contains invalid YAML: " . $e->getMessage());
+            }
+        }
+
+        // Test optional workflows if they exist
+        foreach (self::OPTIONAL_WORKFLOWS as $workflow) {
+            $path = self::WORKFLOW_DIR . '/' . $workflow;
+            if (!file_exists($path)) {
+                continue;
+            }
+
+            $content = file_get_contents($path);
             $this->assertNotFalse($content, "Could not read workflow file {$workflow}");
 
             try {
@@ -234,5 +260,6 @@ class WorkflowValidationTest extends TestCase
 
         $this->assertArrayHasKey('jobs', $workflow);
         $this->assertArrayHasKey('benchmark', $workflow['jobs'], 'Benchmark workflow should have benchmark job');
+        // benchmark-memory job is optional
     }
 }

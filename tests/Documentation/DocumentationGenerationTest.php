@@ -198,7 +198,7 @@ class DocumentationGenerationTest extends TestCase
      *
      * @return array<array<string>>
      */
-    public function publicClassProvider(): array
+    public static function publicClassProvider(): array
     {
         return [
             ['SortedLinkedList\SortedLinkedList'],
