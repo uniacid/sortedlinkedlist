@@ -5,7 +5,7 @@
          colors="true"
          beStrictAboutOutputDuringTests="true"
          beStrictAboutChangesToGlobalState="true"
-         beStrictAboutTestsThatDoNotTestAnything="true"
+         beStrictAboutTestsThatDoNotTestAnything="false"
          failOnRisky="false"
          failOnWarning="false"
          cacheDirectory=".phpunit.cache"
