@@ -652,8 +652,8 @@ abstract class SortedLinkedList implements \Iterator, \ArrayAccess, \Countable
             fn($v) => is_scalar($v)
                 ? (string)$v
                 : (is_object($v)
-                    ? (string)spl_object_id($v)
-                    : (string)json_encode($v, JSON_THROW_ON_ERROR)),
+                    ? spl_object_id($v)
+                    : json_encode($v, JSON_THROW_ON_ERROR)),
             $values
         ));
 
@@ -665,7 +665,7 @@ abstract class SortedLinkedList implements \Iterator, \ArrayAccess, \Countable
             $currentValueKey = is_scalar($value)
                 ? (string)$value
                 : (is_object($value)
-                    ? (string)spl_object_id($value)
+                    ? spl_object_id($value)
                     : json_encode($value, JSON_THROW_ON_ERROR));
 
             if (isset($valuesToRemove[$currentValueKey])) {
@@ -715,8 +715,8 @@ abstract class SortedLinkedList implements \Iterator, \ArrayAccess, \Countable
             fn($v) => is_scalar($v)
                 ? (string)$v
                 : (is_object($v)
-                    ? (string)spl_object_id($v)
-                    : (string)json_encode($v, JSON_THROW_ON_ERROR)),
+                    ? spl_object_id($v)
+                    : json_encode($v, JSON_THROW_ON_ERROR)),
             $values
         ));
 
@@ -728,7 +728,7 @@ abstract class SortedLinkedList implements \Iterator, \ArrayAccess, \Countable
             $currentValueKey = is_scalar($value)
                 ? (string)$value
                 : (is_object($value)
-                    ? (string)spl_object_id($value)
+                    ? spl_object_id($value)
                     : json_encode($value, JSON_THROW_ON_ERROR));
 
             if (!isset($valuesToRetain[$currentValueKey])) {
