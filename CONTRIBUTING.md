@@ -19,6 +19,8 @@ This project and everyone participating in it is governed by the [SortedLinkedLi
 
 ## Getting Started
 
+### Development Setup
+
 1. Fork the repository on GitHub
 2. Clone your fork locally:
    ```bash
@@ -33,6 +35,19 @@ This project and everyone participating in it is governed by the [SortedLinkedLi
    ```bash
    composer test
    ```
+5. Set up pre-commit hooks (optional but recommended):
+   ```bash
+   cp .git/hooks/pre-commit.sample .git/hooks/pre-commit
+   # Edit the pre-commit hook to run: composer check
+   ```
+
+### Development Environment
+
+- **PHP Version**: 8.1 or higher
+- **Composer**: Latest stable version
+- **PHPUnit**: Installed via Composer
+- **PHPStan**: Level 9 (maximum strictness)
+- **PHP CodeSniffer**: PSR-12 standard
 
 ## How Can I Contribute?
 
@@ -139,6 +154,24 @@ This project follows PSR-12 coding standards. Before submitting a pull request:
 - **Add PHPDoc blocks** for all public methods and complex logic
 - **Use type declarations** for parameters and return types
 - **Maintain backward compatibility** when possible
+
+### Code Standards
+
+- **Indentation**: 4 spaces (no tabs)
+- **Line Length**: Max 120 characters for code, 80 for comments
+- **Naming Conventions**:
+  - Classes: PascalCase (e.g., `SortedLinkedList`)
+  - Methods: camelCase (e.g., `insertNode`)
+  - Constants: UPPER_SNAKE_CASE (e.g., `DEFAULT_SIZE`)
+  - Properties: camelCase with visibility (e.g., `private $nodeCount`)
+- **File Structure**:
+  - One class per file
+  - Filename matches class name
+  - PSR-4 autoloading structure
+- **Documentation**:
+  - All public methods must have PHPDoc
+  - Complex algorithms should have inline comments
+  - README examples must be tested
 
 ## Testing Guidelines
 

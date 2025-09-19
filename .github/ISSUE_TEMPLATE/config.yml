@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 💬 Community Discussions
+    url: https://github.com/yourusername/SortedLinkedList/discussions
+    about: Ask questions and discuss ideas with the community
+  - name: 📖 Documentation
+    url: https://github.com/yourusername/SortedLinkedList/blob/main/README.md
+    about: Check out the documentation for usage examples
+  - name: 🔒 Security Issues
+    url: https://github.com/yourusername/SortedLinkedList/security/policy
+    about: Report security vulnerabilities privately
