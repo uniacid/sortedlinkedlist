@@ -93,7 +93,9 @@ class ComposerValidationTest extends TestCase
     public function testAutoloadingConfiguration(): void
     {
         $this->assertArrayHasKey('autoload', $this->composerData);
+        $this->assertIsArray($this->composerData['autoload']);
         $this->assertArrayHasKey('psr-4', $this->composerData['autoload']);
+        $this->assertIsArray($this->composerData['autoload']['psr-4']);
         $this->assertArrayHasKey('SortedLinkedList\\', $this->composerData['autoload']['psr-4']);
         $this->assertEquals('src/', $this->composerData['autoload']['psr-4']['SortedLinkedList\\']);
     }
@@ -101,7 +103,9 @@ class ComposerValidationTest extends TestCase
     public function testAutoloadDevConfiguration(): void
     {
         $this->assertArrayHasKey('autoload-dev', $this->composerData);
+        $this->assertIsArray($this->composerData['autoload-dev']);
         $this->assertArrayHasKey('psr-4', $this->composerData['autoload-dev']);
+        $this->assertIsArray($this->composerData['autoload-dev']['psr-4']);
         $this->assertArrayHasKey('SortedLinkedList\\Tests\\', $this->composerData['autoload-dev']['psr-4']);
         $this->assertEquals('tests/', $this->composerData['autoload-dev']['psr-4']['SortedLinkedList\\Tests\\']);
     }

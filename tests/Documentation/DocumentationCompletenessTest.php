@@ -294,7 +294,7 @@ class DocumentationCompletenessTest extends TestCase
             // Check for @return tag if method has return type
             if ($method->hasReturnType()) {
                 $returnType = $method->getReturnType();
-                if ($returnType && $returnType->__toString() !== 'void') {
+                if ($returnType !== null && $returnType->__toString() !== 'void') {
                     $this->assertStringContainsString(
                         '@return',
                         $docComment,
