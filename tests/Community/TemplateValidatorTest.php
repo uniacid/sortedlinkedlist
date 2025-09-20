@@ -42,13 +42,11 @@ class TemplateValidatorTest extends TestCase
             'Bug report template should exist'
         );
 
-        if (file_exists($bugTemplate)) {
-            $content = file_get_contents($bugTemplate);
-            $this->assertStringContainsString('name:', $content);
-            $this->assertStringContainsString('about:', $content);
-            $this->assertStringContainsString('title:', $content);
-            $this->assertStringContainsString('labels:', $content);
-        }
+        $content = file_get_contents($bugTemplate);
+        $this->assertStringContainsString('name:', $content);
+        $this->assertStringContainsString('about:', $content);
+        $this->assertStringContainsString('title:', $content);
+        $this->assertStringContainsString('labels:', $content);
     }
 
     public function testFeatureRequestTemplateExists(): void
@@ -59,13 +57,11 @@ class TemplateValidatorTest extends TestCase
             'Feature request template should exist'
         );
 
-        if (file_exists($featureTemplate)) {
-            $content = file_get_contents($featureTemplate);
-            $this->assertStringContainsString('name:', $content);
-            $this->assertStringContainsString('about:', $content);
-            $this->assertStringContainsString('title:', $content);
-            $this->assertStringContainsString('labels:', $content);
-        }
+        $content = file_get_contents($featureTemplate);
+        $this->assertStringContainsString('name:', $content);
+        $this->assertStringContainsString('about:', $content);
+        $this->assertStringContainsString('title:', $content);
+        $this->assertStringContainsString('labels:', $content);
     }
 
     public function testPerformanceIssueTemplateExists(): void
@@ -76,12 +72,10 @@ class TemplateValidatorTest extends TestCase
             'Performance issue template should exist'
         );
 
-        if (file_exists($perfTemplate)) {
-            $content = file_get_contents($perfTemplate);
-            $this->assertStringContainsString('name:', $content);
-            $this->assertStringContainsString('about:', $content);
-            $this->assertStringContainsString('Performance', $content);
-        }
+        $content = file_get_contents($perfTemplate);
+        $this->assertStringContainsString('name:', $content);
+        $this->assertStringContainsString('about:', $content);
+        $this->assertStringContainsString('Performance', $content);
     }
 
     public function testPullRequestTemplateExists(): void
@@ -92,19 +86,17 @@ class TemplateValidatorTest extends TestCase
             'Pull request template should exist'
         );
 
-        if (file_exists($prTemplate)) {
-            $content = file_get_contents($prTemplate);
+        $content = file_get_contents($prTemplate);
 
-            // Check for required sections
-            $this->assertStringContainsString('## Description', $content);
-            $this->assertStringContainsString('## Type of Change', $content);
-            $this->assertStringContainsString('## Checklist', $content);
+        // Check for required sections
+        $this->assertStringContainsString('## Description', $content);
+        $this->assertStringContainsString('## Type of Change', $content);
+        $this->assertStringContainsString('## Checklist', $content);
 
-            // Check for checklist items
-            $this->assertMatchesRegularExpression('/\[ \].*tests/i', $content);
-            $this->assertMatchesRegularExpression('/\[ \].*documentation/i', $content);
-            $this->assertMatchesRegularExpression('/\[ \].*breaking change/i', $content);
-        }
+        // Check for checklist items
+        $this->assertMatchesRegularExpression('/\[ \].*tests/i', $content);
+        $this->assertMatchesRegularExpression('/\[ \].*documentation/i', $content);
+        $this->assertMatchesRegularExpression('/\[ \].*breaking change/i', $content);
     }
 
     public function testContributingFileExists(): void
@@ -115,16 +107,14 @@ class TemplateValidatorTest extends TestCase
             'CONTRIBUTING.md should exist'
         );
 
-        if (file_exists($contributingFile)) {
-            $content = file_get_contents($contributingFile);
+        $content = file_get_contents($contributingFile);
 
-            // Check for essential sections
-            $this->assertStringContainsString('## Getting Started', $content);
-            $this->assertStringContainsString('## Development Setup', $content);
-            $this->assertStringContainsString('## Pull Request Process', $content);
-            $this->assertStringContainsString('## Code Standards', $content);
-            $this->assertStringContainsString('## Testing', $content);
-        }
+        // Check for essential sections
+        $this->assertStringContainsString('## Getting Started', $content);
+        $this->assertStringContainsString('## Development Setup', $content);
+        $this->assertStringContainsString('## Pull Request Process', $content);
+        $this->assertStringContainsString('## Code Standards', $content);
+        $this->assertStringContainsString('## Testing', $content);
     }
 
     public function testCodeOfConductFileExists(): void
@@ -135,14 +125,12 @@ class TemplateValidatorTest extends TestCase
             'CODE_OF_CONDUCT.md should exist'
         );
 
-        if (file_exists($codeOfConductFile)) {
-            $content = file_get_contents($codeOfConductFile);
+        $content = file_get_contents($codeOfConductFile);
 
-            // Check for Contributor Covenant elements
-            $this->assertStringContainsString('## Our Pledge', $content);
-            $this->assertStringContainsString('## Our Standards', $content);
-            $this->assertStringContainsString('## Enforcement', $content);
-        }
+        // Check for Contributor Covenant elements
+        $this->assertStringContainsString('## Our Pledge', $content);
+        $this->assertStringContainsString('## Our Standards', $content);
+        $this->assertStringContainsString('## Enforcement', $content);
     }
 
     public function testLabelsConfigurationExists(): void
@@ -153,16 +141,14 @@ class TemplateValidatorTest extends TestCase
             'GitHub labels configuration should exist'
         );
 
-        if (file_exists($labelsFile)) {
-            $content = file_get_contents($labelsFile);
+        $content = file_get_contents($labelsFile);
 
-            // Check for label categories
-            $this->assertStringContainsString('bug', $content);
-            $this->assertStringContainsString('feature', $content);
-            $this->assertStringContainsString('enhancement', $content);
-            $this->assertStringContainsString('documentation', $content);
-            $this->assertStringContainsString('priority', $content);
-        }
+        // Check for label categories
+        $this->assertStringContainsString('bug', $content);
+        $this->assertStringContainsString('feature', $content);
+        $this->assertStringContainsString('enhancement', $content);
+        $this->assertStringContainsString('documentation', $content);
+        $this->assertStringContainsString('priority', $content);
     }
 
     public function testIssueTemplateConfigExists(): void
@@ -173,11 +159,9 @@ class TemplateValidatorTest extends TestCase
             'Issue template config should exist'
         );
 
-        if (file_exists($configFile)) {
-            $content = file_get_contents($configFile);
-            $this->assertStringContainsString('blank_issues_enabled:', $content);
-            $this->assertStringContainsString('contact_links:', $content);
-        }
+        $content = file_get_contents($configFile);
+        $this->assertStringContainsString('blank_issues_enabled:', $content);
+        $this->assertStringContainsString('contact_links:', $content);
     }
 
     public function testTemplateMarkdownValidity(): void
@@ -190,37 +174,35 @@ class TemplateValidatorTest extends TestCase
         ];
 
         foreach ($issueTemplates as $template) {
-            if (file_exists($template)) {
-                $content = file_get_contents($template);
+            $this->assertFileExists($template, "Template {$template} should exist");
+            $content = file_get_contents($template);
 
-                // Check for valid YAML front matter in issue templates
-                $this->assertMatchesRegularExpression(
-                    '/^---\n.*\n---/s',
-                    $content,
-                    "Issue template {$template} should have valid YAML front matter"
-                );
-
-                // Check for no broken markdown syntax
-                $this->assertDoesNotMatchRegularExpression(
-                    '/\[.*\]\(\s*\)/',
-                    $content,
-                    "Template {$template} should not have empty links"
-                );
-            }
-        }
-
-        // PR template doesn't need frontmatter
-        $prTemplate = $this->githubDir . '/pull_request_template.md';
-        if (file_exists($prTemplate)) {
-            $content = file_get_contents($prTemplate);
+            // Check for valid YAML front matter in issue templates
+            $this->assertMatchesRegularExpression(
+                '/^---\n.*\n---/s',
+                $content,
+                "Issue template {$template} should have valid YAML front matter"
+            );
 
             // Check for no broken markdown syntax
             $this->assertDoesNotMatchRegularExpression(
                 '/\[.*\]\(\s*\)/',
                 $content,
-                "PR template should not have empty links"
+                "Template {$template} should not have empty links"
             );
         }
+
+        // PR template doesn't need frontmatter
+        $prTemplate = $this->githubDir . '/pull_request_template.md';
+        $this->assertFileExists($prTemplate, "PR template should exist");
+        $content = file_get_contents($prTemplate);
+
+        // Check for no broken markdown syntax
+        $this->assertDoesNotMatchRegularExpression(
+            '/\[.*\]\(\s*\)/',
+            $content,
+            "PR template should not have empty links"
+        );
     }
 
     public function testDiscussionsInstructionsExist(): void
@@ -231,14 +213,12 @@ class TemplateValidatorTest extends TestCase
             'GitHub Discussions setup instructions should exist'
         );
 
-        if (file_exists($discussionsFile)) {
-            $content = file_get_contents($discussionsFile);
+        $content = file_get_contents($discussionsFile);
 
-            // Check for required categories
-            $this->assertStringContainsString('Q&A', $content);
-            $this->assertStringContainsString('Ideas', $content);
-            $this->assertStringContainsString('Show and Tell', $content);
-            $this->assertStringContainsString('General', $content);
-        }
+        // Check for required categories
+        $this->assertStringContainsString('Q&A', $content);
+        $this->assertStringContainsString('Ideas', $content);
+        $this->assertStringContainsString('Show and Tell', $content);
+        $this->assertStringContainsString('General', $content);
     }
 }

@@ -270,6 +270,7 @@ class ReleaseWorkflowTest extends TestCase
     public function testNoUnsafeScripts(): void
     {
         $composerData = json_decode(file_get_contents($this->composerPath), true);
+        $this->assertIsArray($composerData, 'composer.json should decode to an array');
 
         if (isset($composerData['scripts'])) {
             $unsafeScripts = ['post-install-cmd', 'post-update-cmd', 'post-autoload-dump'];
@@ -292,8 +293,8 @@ class ReleaseWorkflowTest extends TestCase
                 }
             }
 
-            // Assert that we checked something or no unsafe scripts exist
-            $this->assertTrue(!$hasUnsafeScripts || true, 'No unsafe installation scripts found');
+            // Assert that no unsafe scripts exist
+            $this->assertFalse($hasUnsafeScripts, 'No unsafe installation scripts should be present');
         } else {
             $this->assertTrue(true, 'No scripts defined in composer.json');
         }
@@ -312,7 +313,7 @@ class ReleaseWorkflowTest extends TestCase
         foreach ($output as $tag) {
             if (!empty($tag)) {
                 // All version tags should follow v*.*.* format
-                if (preg_match('/^v/', $tag)) {
+                if (preg_match('/^v/', $tag) === 1) {
                     $hasVersionTags = true;
                     $this->assertMatchesRegularExpression(
                         '/^v\d+\.\d+\.\d+(-[a-zA-Z0-9\.]+)?$/',
@@ -324,6 +325,6 @@ class ReleaseWorkflowTest extends TestCase
         }
 
         // If no version tags exist, that's fine for initial setup
-        $this->assertTrue(!$hasVersionTags || true, 'Version tags follow semantic versioning or no tags exist yet');
+        $this->assertTrue(true, 'Version tags validated (or none exist yet)');
     }
 }
